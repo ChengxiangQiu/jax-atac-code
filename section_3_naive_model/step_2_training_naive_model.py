@@ -1,0 +1,222 @@
+
+###############################################
+### Training the evoluation-naive CREsted model
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
+
+### CREsted paper reference:
+### https://www.biorxiv.org/content/10.1101/2025.04.02.646812v1
+
+
+#########################################################################
+### Step-1: Initial training the model using top 10K peaks per cell class
+
+import anndata as ad
+import crested
+import numpy as np
+import os, sys
+import matplotlib
+
+bigwigs_folder = "BigWig_cut_site_norm"
+regions_file = "merged_peaks_2L_non_overlap_with_promoter_2500_black_regions.bed"
+
+work_path = ""
+
+# Set the genome
+genome = crested.Genome(
+    "mm10.fa",
+    "chromosome_sizes.txt"
+)
+crested.register_genome(
+    genome
+)
+
+print(genome.fetch("chr1", 10000000, 10000010))
+
+adata = crested.import_bigwigs(
+    bigwigs_folder=bigwigs_folder,
+    regions_file=regions_file,
+    target_region_width=1000,
+    target="count",
+)
+adata
+
+crested.pp.train_val_test_split(
+    adata, strategy="chr", val_chroms=["chr8", "chr10"], test_chroms=["chr9", "chr18"]
+)
+
+print(adata.var["split"].value_counts())
+adata.var.head(3)
+
+crested.pp.change_regions_width(
+    adata, 2114
+)
+
+crested.pp.normalize_peaks(
+    adata, top_k_percent=0.03
+)
+
+adata.write_h5ad(os.path.join(work_path, "celltype_L2_cut_norm", "data_celltype_L2.h5ad"))
+
+def compute_softmax_stable(x):
+    x = np.array(x, dtype=np.float64)
+    exp_x = np.exp(x - np.max(x))
+    return exp_x / np.sum(exp_x)
+
+X_softmax = np.apply_along_axis(compute_softmax_stable, axis=0, arr=adata.X)
+
+topk = 10000
+selected_columns = set()
+for row in X_softmax:
+    top_idx = np.argsort(row)[-topk:]  # Top k indices
+    selected_columns.update(top_idx)
+
+selected_columns = sorted(list(selected_columns))
+adata_sub = adata[:, selected_columns].copy()
+adata_sub.write_h5ad(os.path.join(work_path, "celltype_L2_cut_norm", "data_celltype_L2_top10K.h5ad"))
+
+adata = ad.read_h5ad(os.path.join(work_path, "celltype_L2_cut_norm", "data_celltype_L2_top10K.h5ad"))
+adata
+
+print(adata.var["split"].value_counts())
+adata.var.head(3)
+
+datamodule = crested.tl.data.AnnDataModule(
+    adata,
+    batch_size=256,
+    max_stochastic_shift=3,
+    always_reverse_complement=True,
+)
+
+model_architecture = crested.tl.zoo.dilated_cnn(
+    seq_len=2114, num_classes=len(list(adata.obs_names))
+)
+
+config = crested.tl.default_configs(
+    "peak_regression"
+)
+print(config)
+
+import keras
+
+optimizer = keras.optimizers.Adam(learning_rate=1e-3)
+loss = crested.tl.losses.CosineMSELogLoss(max_weight=100, multiplier=1)
+metrics = [
+    keras.metrics.MeanAbsoluteError(),
+    keras.metrics.MeanSquaredError(),
+    keras.metrics.CosineSimilarity(axis=1),
+    crested.tl.metrics.PearsonCorrelation(),
+    crested.tl.metrics.ConcordanceCorrelationCoefficient(),
+    crested.tl.metrics.PearsonCorrelationLog(),
+    crested.tl.metrics.ZeroPenaltyMetric(),
+]
+
+alternative_config = crested.tl.TaskConfig(optimizer, loss, metrics)
+print(alternative_config)
+
+trainer = crested.tl.Crested(
+    data=datamodule,
+    model=model_architecture,
+    config=alternative_config,
+    project_name="celltype_L2",
+    run_name="basemodel",
+    logger="wandb",
+    seed=7,
+)
+
+trainer.fit(
+    epochs=60,
+    learning_rate_reduce_patience=3,
+    early_stopping_patience=6,
+    model_checkpointing_best_only=False
+)
+
+
+########################################################
+### Step-2: Finetuning using top 3K peaks per cell class
+
+X_softmax = np.apply_along_axis(compute_softmax_stable, axis=0, arr=adata.X)
+
+topk = 3000
+selected_columns = set()
+for row in X_softmax:
+    top_idx = np.argsort(row)[-topk:]  # Top k indices
+    selected_columns.update(top_idx)
+
+selected_columns = sorted(list(selected_columns))
+adata_sub = adata[:, selected_columns].copy()
+adata_sub.write_h5ad(os.path.join(work_path, "celltype_L2_cut_norm", "data_celltype_L2_top3K.h5ad"))
+
+adata = ad.read_h5ad(os.path.join(work_path, "celltype_L2_cut_norm", "data_celltype_L2_top3K.h5ad"))
+adata
+
+datamodule = crested.tl.data.AnnDataModule(
+    adata,
+    batch_size=64,  # Recommended to go for a smaller batch size than in the basemodel
+    max_stochastic_shift=3,
+    always_reverse_complement=True,
+)
+
+model_architecture = keras.models.load_model(
+    os.path.join(work_path, "celltype_L2_cut_norm", "celltype_L2", "basemodel", "checkpoints", "22.keras"),
+    compile=False,
+)
+
+optimizer = keras.optimizers.Adam(learning_rate=1e-4)
+loss = crested.tl.losses.CosineMSELogLoss(max_weight=100, multiplier=1)
+metrics = [
+    keras.metrics.MeanAbsoluteError(),
+    keras.metrics.MeanSquaredError(),
+    keras.metrics.CosineSimilarity(axis=1),
+    crested.tl.metrics.PearsonCorrelation(),
+    crested.tl.metrics.ConcordanceCorrelationCoefficient(),
+    crested.tl.metrics.PearsonCorrelationLog(),
+    crested.tl.metrics.ZeroPenaltyMetric(),
+]
+
+alternative_config = crested.tl.TaskConfig(optimizer, loss, metrics)
+print(alternative_config)
+
+trainer = crested.tl.Crested(
+    data=datamodule,
+    model=model_architecture,
+    config=alternative_config,
+    project_name="celltype_L2",
+    run_name="finetuned_model",
+    logger="wandb",
+)
+
+trainer.fit(
+    epochs=60,
+    learning_rate_reduce_patience=3,
+    early_stopping_patience=6,
+    model_checkpointing_best_only=False
+)
+
+
+#####################################################
+### Step-3: Evaluate the model using the held-out set
+
+adata = ad.read_h5ad(os.path.join(work_path, "celltype_L2_cut_norm", "data_celltype_L2_top3K.h5ad"))
+
+datamodule = crested.tl.data.AnnDataModule(
+    adata,
+    batch_size=256,
+)
+
+evaluator = crested.tl.Crested(data=datamodule)
+model_path = os.path.join(work_path, "celltype_L2_cut_norm", "celltype_L2", "finetuned_model", "checkpoints", "07.keras")
+
+evaluator.load_model(
+    model_path,
+    compile=True,
+)
+
+evaluator.test()
+
+
+
