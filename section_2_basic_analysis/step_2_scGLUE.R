@@ -27,7 +27,7 @@ pd_sub = pd_rna[pd_rna$cell_id %in% pd_rna_downsample$cell_id,]
 
 rownames(pd_sub) = as.vector(pd_sub$cell_id)
 
-fd = mouse_gene_v12[(mouse_gene_v12$gene_type %in% c('protein_coding', 'pseudogene', 'lincRNA')) & 
+fd = mouse_gene_v12[(mouse_gene_v12$gene_type %in% c('protein_coding', 'pseudogene', 'lincRNA')) &
     mouse_gene_v12$chr %in% paste0("chr", c(1:19, "M")),]
 
 embryo_list = names(table(pd_sub$embryo_id))
@@ -56,7 +56,7 @@ web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/
 source("help_code/utils.R")
 
 peak_mat = open_matrix_dir(paste0(work_path, "/atac_all"))
-colnames(peak_mat) = unlist(lapply(colnames(peak_mat), function(x) strsplit(x,"[-]")[[1]][1])) 
+colnames(peak_mat) = unlist(lapply(colnames(peak_mat), function(x) strsplit(x,"[-]")[[1]][1]))
 ### 376,574 peaks x 4,344,905 cells
 
 use_meta = readRDS(paste0(web_path, "/atac.pd.rds"))
@@ -112,7 +112,7 @@ atac_coor = read.csv(paste0(work_path, "/atac_X_glue.csv"), header=F)
 combine_coor = rbind(rna_coor, atac_coor)
 
 set.seed(2016)
-umap_model = uwot::umap(as.matrix(combine_coor), 
+umap_model = uwot::umap(as.matrix(combine_coor),
                             n_components = 3,
                             n_neighbors = 30,
                             min_dist = 0.3,
@@ -129,7 +129,7 @@ umap_coor = uwot::umap_transform(as.matrix(combine_coor),
 umap_coor = data.frame(umap_coor)
 names(umap_coor) = paste0("UMAP_", 1:3)
 
-rna_select = rna[,c("cell_id", "day", "major_trajectory", 
+rna_select = rna[,c("cell_id", "day", "major_trajectory",
                     "celltype_update", "embryo_id")]
 rna_select$group = "RNA"
 
@@ -137,7 +137,7 @@ atac$embryo_id = atac$sample
 atac$major_trajectory = as.vector(atac$major_trajectory)
 atac$celltype_update = as.vector(atac$global_cluster)
 atac$group = "ATAC"
-atac_select = atac[,c("cell_id", "day", "major_trajectory", 
+atac_select = atac[,c("cell_id", "day", "major_trajectory",
                       "celltype_update", "embryo_id", "group")]
 
 df = rbind(rna_select, atac_select)
@@ -147,7 +147,7 @@ saveRDS(df, paste0(work_path, "/combined_df_cell.rds"))
 
 save_path = ""
 
-fig = plot_ly(df[sample(1:nrow(df), 200000),], x=~UMAP_1, y=~UMAP_2, z=~UMAP_3, size = I(30), color = ~group) %>% 
+fig = plot_ly(df[sample(1:nrow(df), 200000),], x=~UMAP_1, y=~UMAP_2, z=~UMAP_3, size = I(30), color = ~group) %>%
     layout(scene = list(xaxis=list(title = list(text ='UMAP_1', font = t1), tickfont = t2),
                         yaxis=list(title = list(text ='UMAP_2', font = t1), tickfont = t2),
                         zaxis=list(title = list(text ='UMAP_3', font = t1), tickfont = t2)))
@@ -174,7 +174,7 @@ saveWidget(fig, paste0(save_path, "/RNA_ATAC_scglue_day.html"), selfcontained = 
 
 
 ##########################################################################################################
-### Step-5: tranfering cell type labels for ATACseq data based on kNN in the coembedding learned by scGLUE
+### Step-5: transferring cell type labels for ATACseq data based on kNN in the coembedding learned by scGLUE
 
 work_path = ""
 web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
@@ -239,11 +239,11 @@ for(i in 1:k.param){
 df = data.frame(atac_day = rep(as.vector(atac$day), k.param),
                 rna_day = c(result))
 
-day_list = c("E10.0", "E10.25", 
-             "E10.5", "E10.75", "E11.0", "E11.25", "E11.5", "E11.75", "E12.0", 
-             "E12.25", "E12.5", "E12.75", "E13.0", "E13.25", "E13.5", "E13.75", 
-             "E14.0", "E14.25", "E14.333", "E14.375", "E14.75", "E15.0", "E15.25", "E15.5", 
-             "E15.75", "E16.0", "E16.25", "E16.5", "E16.75", "E17.0", "E17.25", 
+day_list = c("E10.0", "E10.25",
+             "E10.5", "E10.75", "E11.0", "E11.25", "E11.5", "E11.75", "E12.0",
+             "E12.25", "E12.5", "E12.75", "E13.0", "E13.25", "E13.5", "E13.75",
+             "E14.0", "E14.25", "E14.333", "E14.375", "E14.75", "E15.0", "E15.25", "E15.5",
+             "E15.75", "E16.0", "E16.25", "E16.5", "E16.75", "E17.0", "E17.25",
              "E17.5", "E17.75", "E18.0", "E18.25", "E18.5", "E18.75", "P0")
 
 df$atac_day = factor(df$atac_day, levels = day_list[day_list %in% df$atac_day])
@@ -266,7 +266,7 @@ ggplot(df, aes(x = rna_day, y = atac_day, fill = atac_day)) +
         breaks = breaks,
         labels = paste0("E", breaks)
     ) +
-    theme(legend.position = "none") + 
+    theme(legend.position = "none") +
     coord_flip() +
     labs(
         x = "Staging bins of scRNA-seq nearest neighbors",

@@ -57,19 +57,19 @@ sample_list = as.vector(pd_x$sample)
 peak_matrix = NULL
 for(sample_i in sample_list){
     x = pd_x$sample_id[pd_x$sample == sample_i]
-    
-    counts = Read10X(paste0(work_path, sample_i), gene.column = 1) 
+
+    counts = Read10X(paste0(work_path, sample_i), gene.column = 1)
     colnames(counts) = paste0(x, "_", colnames(counts))
-    
+
     counts_sub = counts[!rownames(counts) %in% exclude,
                         colnames(counts) %in% as.vector(pd_all$cell_id)]
-    
+
     peak_matrix = cbind(peak_matrix, counts_sub)
 }
 
 ### binary matrix and remove low express cells and peaks
 ### filter out peaks which are detected in less than 0.1% cells
-### filter out cells which are deteced less than 100 peaks
+### filter out cells which are detected less than 100 peaks
 peak_matrix@x[peak_matrix@x > 0] = 1
 peak_matrix = filter_features(peak_matrix, cells=ncol(peak_matrix) * 0.001)
 
@@ -117,7 +117,7 @@ source("help_code/utils.R")
 ### Of note, the atac_all.h5ad was created by Scanpy; please check the script "help_code/create_scanpy_object.py"
 
 if (!file.exists(paste0(work_path, "/atac_all"))) {
-    peak_mat = open_matrix_anndata_hdf5(paste0(work_path, "/atac_all.h5ad")) %>% 
+    peak_mat = open_matrix_anndata_hdf5(paste0(work_path, "/atac_all.h5ad")) %>%
         convert_matrix_type(type = "uint32_t") %>%
         write_matrix_dir(paste0(work_path, "/atac_all"))
 } else {
@@ -142,7 +142,7 @@ tf = peak_mat %>%
     multiply_cols(1 / Matrix::colSums(peak_mat))
 
 scale_factor=100000
-tf_idf = log1p(tf * scale_factor) %>% 
+tf_idf = log1p(tf * scale_factor) %>%
     multiply_rows(log1p(1 / Matrix::rowMeans(peak_mat)))
 
 dims = 2:50
@@ -158,7 +158,7 @@ saveRDS(pca_l2_mat, paste0(work_path, "/atac_all.pca_l2.rds"))
 write.csv(round(pca_l2_mat[,dims], 3), paste0(work_path, "/atac_all.pca_l2.csv"))
 
 set.seed(12341512)
-umap_mat = uwot::umap(pca_l2_mat[,dims], n_components = 3, metric = "cosine", 
+umap_mat = uwot::umap(pca_l2_mat[,dims], n_components = 3, metric = "cosine",
                       n_neighbors = 50, min_dist = 0.1)
 umap_mat[1:4,]
 
@@ -170,7 +170,7 @@ options(future.globals.maxSize = 50000 * 1024^2)
 
 seurat_obj = Seurat::CreateSeuratObject(peak_mat[1:100,])
 seurat_obj[['umap']] = Seurat::CreateDimReducObject(embeddings=umap_mat, key='UMAP_', assay='RNA')
-seurat_obj = seurat_obj %>% 
+seurat_obj = seurat_obj %>%
     Seurat::FindNeighbors(reduction="umap", nn.eps=0, dims=1:3, k.param=20) %>%
     Seurat::FindClusters(n.start=20, resolution=0.1) %>%
     Seurat::FindClusters(n.start=20, resolution=0.3) %>%
