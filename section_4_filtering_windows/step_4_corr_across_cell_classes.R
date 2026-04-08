@@ -16,11 +16,11 @@ work_path = ""
 web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
 source("help_code/utils.R")
 
-data = read.table(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/dat.txt"), sep = "\t")
-window_list_uniq = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list_uniq.rds"))
+data = read.table(paste0(work_path, "/umap_Mus_musculus/dat.txt"), sep = "\t")
+window_list_uniq = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list_uniq.rds"))
 rownames(data) = window_list_uniq$window_id = paste0(window_list_uniq$chr, "_", window_list_uniq$start, "_", window_list_uniq$end)
 
-candidate_windows = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/candidate_region_exclude_blacklist.bed"))
+candidate_windows = read.table(paste0(work_path, "candidate_region_exclude_blacklist.bed"))
 colnames(candidate_windows) = c("chr", "start", "end", "celltype")
 candidate_windows$window_id = paste0(candidate_windows$chr, "_", candidate_windows$start, "_", candidate_windows$end)
 
@@ -50,8 +50,11 @@ df_cor %>%
     .groups = "drop"
   )
 
-### adding correlation with other species
-result_corr = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/prediction/result_corr.rds"))
+
+#################################################
+### Step-2: adding correlation with other species
+
+result_corr = readRDS(paste0(work_path, "/corr_Mus_musculus/prediction/result_corr.rds"))
 window_ID_include = window_list_uniq %>% filter(window_id %in% as.vector(candidate_windows_sub$window_id)) %>% pull(window_ID)
 result_corr = result_corr[result_corr$window_ID %in% window_ID_include,]
 

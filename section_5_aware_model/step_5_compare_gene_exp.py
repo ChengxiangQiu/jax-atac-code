@@ -1,11 +1,19 @@
 
+###################################################################
+### Predict cell-class-specific gene expression by distal enhancers
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
 
 
 #############################################################
-### Step-2, overlapping celltype-specific genes and enhancers
+### Step-1: overlapping celltype-specific genes and enhancers
 
-work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested
-model_id=mouse_fake_track_14
+work_path=XXX
+model_id=XXX
 mkdir -p "$work_path"/"$model_id"/prediction_mammals/prediction_Mus_musculus_trf/compare_gene_exp
 bedtools intersect \
 -a "$work_path"/mouse_fake_track_12/compare_gene_exp/gene_loc.protein_coding.bed \
@@ -15,12 +23,13 @@ bedtools intersect \
 
 
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
+work_path = ""
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
+source("help_code/utils.R")
 
-model_id = "mouse_fake_track_14"
+model_id = "XXX"
 
-dat = read.table(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_Mus_musculus_trf/compare_gene_exp/celltype_peaks_overlap_gene.bed"))
+dat = read.table(paste0(work_path, "/14_crested/", model_id, "/compare_gene_exp/celltype_peaks_overlap_gene.bed"))
 dat = dat[,c(1, 4, 5, 7, 8, 10, 11, 12, 13)]
 colnames(dat) = c("chr", "strand", "gene_ID", "gene_short_name", "gene_TSS", "enhancer_start", "enhancer_end", "enhancer_score", "enhancer_celltype")
 
@@ -32,7 +41,7 @@ dat_2$distance = dat_2$gene_TSS - round((dat_2$enhancer_start + dat_2$enhancer_e
 dat = rbind(dat_1, dat_2)
 dat$abs_distance = abs(dat$distance)
 
-dat_fc = readRDS(paste0(work_path, "/14_crested/mouse_fake_track_12/compare_gene_exp/gene_exp_log2fc_median.rds"))
+dat_fc = readRDS(paste0(work_path, "/gene_exp_log2fc_median.rds"))
 dat_fc = data.frame(gene_ID = rep(rownames(dat_fc), ncol(dat_fc)),
                     log2fc = c(as.matrix(dat_fc)),
                     gene_celltype = rep(colnames(dat_fc), each = nrow(dat_fc)))
@@ -43,12 +52,13 @@ saveRDS(dat_median, paste0(work_path, "/14_crested/", model_id, "/prediction_mam
 
 
 #############################################################
-### Step-3, Plotting the mean/median log2FC across cell types
+### Step-2, Plotting the mean/median log2FC across cell types
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
+work_path = ""
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
+source("help_code/utils.R")
 
-model_id = "mouse_fake_track_14"
+model_id = ""
 
 celltype_list=c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 
@@ -105,12 +115,13 @@ saveRDS(list(dat_x, dat_y), paste0(work_path, "/14_crested/", model_id, "/predic
 
 
 #########################################################
-### Step-4, Permutation on peak - cell type relationships
+### Step-3: Permutation on peak - cell type relationships
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
+work_path = ""
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
+source("help_code/utils.R")
 
-model_id = "mouse_fake_track_14"
+model_id = ""
 
 args = commandArgs(trailingOnly=TRUE)
 perm = as.numeric(args[1])
@@ -178,13 +189,12 @@ saveRDS(list(dat_x, dat_y), paste0(work_path, "/14_crested/", model_id, "/predic
 
 
 
-#############################################
-### Step-5: Plotting the results (adding permutation)
+#####################################################
+### Step-4: Plotting the results (adding permutation)
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
-
-model_id = "mouse_fake_track_14"
+work_path = ""
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
+source("help_code/utils.R")
 
 celltype_list=c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 
@@ -235,7 +245,7 @@ p <- ggplot(dat_x, aes(x = distance, y = bin_label, color = delta_exp)) +
     axis.text.y = element_text(color="black")
   )
 
-ggsave("~/share/Access_Exp_scatter.protein_coding.pdf", p, height = 5, width = 9)
+ggsave("Access_Exp_scatter.protein_coding.pdf", p, height = 5, width = 9)
 
 
 distance_value = data.frame(distance = names(table(dat_x$distance)), distance_index = 1:length(table(dat_x$distance)))
@@ -261,10 +271,11 @@ p = ggplot() +
     axis.text.y = element_text(color="black")
   ) + scale_x_continuous(breaks = 1:49)
 
-ggsave("~/share/Access_Exp_scatter.protein_coding_x.pdf", p, height = 5, width = 6)
+ggsave("Access_Exp_scatter.protein_coding_x.pdf", p, height = 5, width = 6)
 
 
-########## split by cell types
+###############################
+### Step-5: split by cell types
 
 dat_perm = NULL
 for(perm in 1:100){
@@ -313,13 +324,13 @@ p <- ggplot(dat_x_scaled, aes(x = distance, y = bin_label_big, fill = delta_exp_
   ) +
   facet_wrap(~ enhancer_celltype, ncol = 8, nrow = 4)
 
-ggsave("~/share/Access_Exp_scatter.protein_coding.split_celltype_x.pdf", p, height = 6, width = 10)
+ggsave("Access_Exp_scatter.protein_coding.split_celltype_x.pdf", p, height = 6, width = 10)
 
 
 
 
-
-### spliting cell types (32 x 32)
+#########################################
+### Step-6: spliting cell types (32 x 32)
 
 celltype_list_reorder = c("Erythroid_cells","T_cells","B_cells","White_blood_cells","Corticofugal_neurons","Olfactory_neurons","Adipocyte_cells_Cyp2e1","Adipocyte_cells","Hepatocytes","Gut_epithelial_cells","Cardiomyocytes","Lung_and_airway","Endocardial_cells","Endothelium","Lymphatic_vessel_endothelial_cells","Liver_sinusoidal_endothelial_cells","Glomerular_endothelial_cells","Brain_capillary_endothelial_cells","Oligodendrocytes","Glia","Melanocyte_cells","Olfactory_ensheathing_cells","Intermediate_neuronal_progenitors","Eye","Neural_crest_PNS_neurons","CNS_neurons","Neuroectoderm_and_glia","Skeletal_muscle_cells","Kidney","Epithelial_cells","Lateral_plate_and_intermediate_mesoderm","Mesoderm")
 
@@ -365,7 +376,7 @@ p <- ggplot(dat_x, aes(x = x_axis, y = y_axis, color = delta_exp)) +
     axis.text.y = element_text(color="black")
   )
 
-ggsave("~/share/Access_Exp_scatter.protein_coding.split_celltype.pdf", p, height = 12, width = 12)
+ggsave("Access_Exp_scatter.protein_coding.split_celltype.pdf", p, height = 12, width = 12)
 
 
 
@@ -389,7 +400,7 @@ p <- ggplot(dat_x %>% filter(distance == "0-25"), aes(x = x_axis, y = y_axis, co
     axis.text.y = element_text(color="black")
   )
 
-ggsave("~/share/Access_Exp_scatter.protein_coding.split_celltype_subset.pdf", p, height = 10, width = 7)
+ggsave("Access_Exp_scatter.protein_coding.split_celltype_subset.pdf", p, height = 10, width = 7)
 
 
 

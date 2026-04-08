@@ -43,6 +43,10 @@ datamodule = crested.tl.data.AnnDataModule(
 evaluator = crested.tl.Crested(data=datamodule)
 model_path = os.path.join(work_path, "celltype_L2_cut_norm", "celltype_L2", "finetuned_model", "checkpoints", "07.keras")
 
+### The model is available at:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/CREsted_model/evolution_naive_model.keras
+
+
 evaluator.load_model(
     model_path,
     compile=True,

@@ -1,4 +1,17 @@
-### contribution score of candidate regions
+
+
+##########################################################
+### Focusing on six enhancers identified at Alb/Afp region
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
+
+
+###################################################
+### Step-1: contribution score of candidate regions
 
 ### In Hepatocytes six candidate regions:
 chr5 90414331 90414805
@@ -22,17 +35,17 @@ import logomaker
 from pathlib import Path
 from scipy.stats import pearsonr
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
+work_path = ""
 mamm = "Mus_musculus"
-model_id = "mouse_fake_track_14"
+model_id = ""
 
-model_path = f"{work_path}/mouse_fake_track_14/window_cluster/finetuned_model/checkpoints/06.keras"
+model_path = f"{web_path}/CREsted_model/evolution_aware_model.keras"
 model = keras.models.load_model(model_path, compile=False)
-adata = ad.read_h5ad(os.path.join(work_path, "mouse_fake_track_14", "data_window_cluster_top3K.h5ad"))
+adata = ad.read_h5ad(os.path.join(work_path, "data_window_cluster_top3K.h5ad"))
 
 genome = crested.Genome(
-    "/net/shendure/vol10/projects/cxqiu/nobackup/genome/atac_data/mm10/mm10.fa",
-    "/net/shendure/vol10/projects/cxqiu/nobackup/genome/atac_data/mm10/chromosome_sizes.txt"
+    "mm10.fa",
+    "chromosome_sizes.txt"
 )
 crested.register_genome(genome)
 
@@ -77,7 +90,7 @@ for i, region in enumerate(regions_of_interest):
     axes[i].axhline(0, color="black", linewidth=0.5, linestyle="--")
 
 plt.tight_layout()
-plt.savefig("/net/gs/vol1/home/cxqiu/share/contribution_scores_hepatocytes.pdf", dpi=300, bbox_inches="tight")
+plt.savefig("contribution_scores_hepatocytes.pdf", dpi=300, bbox_inches="tight")
 plt.show()
 
 
@@ -85,28 +98,8 @@ plt.show()
 
 
 
-
-#### Within these regions, model-trimmed elements constitute only XX% (Alb & Afp) of bases, 
-#### yet account for XX%, respectively, of nucleotides with phyloP > 2.
-
-#########################################################################
-### creating the candidate region for calculating the contribution scores
-
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
-script_path=/net/shendure/vol10/projects/cxqiu/nobackup/install/
-
-$script_path/bigWigToBedGraph mm10.60way.phyloP60wayPlacental.bw -chrom=chr5 mm10.60way.phyloP60wayPlacental.chr5.bedgraph
-
-region_name=Afp_Alb
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
-bedtools intersect -a ../prediction_mammals/prediction_Mus_musculus_trf/window_list_10Mb.core_region.bed \
--b ./Afp_Alb/"$region_name"_region.bed \
--wa > ./Afp_Alb/"$region_name"_region.aware_core_region.bed
-
-
-
-#################################
-### calculate contribution scores
+#########################################
+### Step-2: calculate contribution scores
 
 import anndata as ad
 import crested
@@ -121,17 +114,17 @@ import logomaker
 from pathlib import Path
 from scipy.stats import pearsonr
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
+work_path = ""
 mamm = "Mus_musculus"
-model_id = "mouse_fake_track_14"
+model_id = ""
 
-model_path = f"{work_path}/mouse_fake_track_14/window_cluster/finetuned_model/checkpoints/06.keras"
+model_path = f"{web_path}/CREsted_model/evolution_aware_model.keras"
 model = keras.models.load_model(model_path, compile=False)
-adata = ad.read_h5ad(os.path.join(work_path, "mouse_fake_track_14", "data_window_cluster_top3K.h5ad"))
+adata = ad.read_h5ad(os.path.join(work_path, "data_window_cluster_top3K.h5ad"))
 
 genome = crested.Genome(
-    "/net/shendure/vol10/projects/cxqiu/nobackup/genome/atac_data/mm10/mm10.fa",
-    "/net/shendure/vol10/projects/cxqiu/nobackup/genome/atac_data/mm10/chromosome_sizes.txt"
+    "mm10.fa",
+    "chromosome_sizes.txt"
 )
 crested.register_genome(genome)
 
@@ -139,7 +132,7 @@ for region_name in ['Afp_Alb']:
     print(region_name)
     dfs = []
     cnt = 1
-    with open(f"{work_path}/mouse_fake_track_14/conservation/Afp_Alb/{region_name}_region.aware_core_region.bed") as file:
+    with open(f"{work_path}/Afp_Alb/{region_name}_region.aware_core_region.bed") as file:
         for line in file:
             print(cnt); cnt += 1
             l = line.rstrip().split('\t')
@@ -162,21 +155,21 @@ for region_name in ['Afp_Alb']:
             })
             dfs.append(df)
     big_df = pd.concat(dfs, ignore_index=True)
-    big_df.to_csv(f"{work_path}/mouse_fake_track_14/conservation/Afp_Alb/{region_name}_region.aware_core_region.contribution_score.bed", sep='\t', index=False, header=True)
+    big_df.to_csv(f"{work_path}/Afp_Alb/{region_name}_region.aware_core_region.contribution_score.bed", sep='\t', index=False, header=True)
 
 
-##############################################################################################
-### filtering bases with contribution scores > 0.1 (whatever cell type it has been associated)
+######################################################################################################
+### Step-3: filtering bases with contribution scores > 0.1 (whatever cell type it has been associated)
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
-options(scipen = 999)
+work_path = ""
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
+source("help_code/utils.R")
 
 for(i in c('Afp_Alb')){
-    dat = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Afp_Alb/", i, "_region.aware_core_region.contribution_score.bed"), header=T)
+    dat = read.table(paste0(work_path, "/Afp_Alb/", i, "_region.aware_core_region.contribution_score.bed"), header=T)
     dat_x = dat %>% group_by(chr, start, end) %>% slice_max(order_by = score, n = 1)
     dat_y = dat_x[dat_x$score > 0.1, c(1:3)]
-    write.table(dat_y, paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Afp_Alb/", i, "_region.aware_core_region.filter.bed"), row.names=F, col.names=F, sep="\t", quote=F)
+    write.table(dat_y, paste0(work_path, "/Afp_Alb/", i, "_region.aware_core_region.filter.bed"), row.names=F, col.names=F, sep="\t", quote=F)
 }
 
 i=Afp_Alb
@@ -186,10 +179,9 @@ mv "$i"_region.aware_core_region.filter_x.bed "$i"_region.aware_core_region.filt
 
 
 
-##############################################################################
-### overlapping with high contribution score regions and excluding CDS regions
+######################################################################################
+### Step-4: overlapping with high contribution score regions and excluding CDS regions
 
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
 i=Afp_Alb
 
 ### how many base pairs in the whole region, and in the high contribution score regions, after excluding CDS
@@ -216,13 +208,13 @@ bedtools intersect \
     > ./Afp_Alb/"$i"_region.aware_core_region.filter.exclude_CDS.bedgraph
 
 i = "Afp_Alb"
-a = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Afp_Alb/", i, "_region.exclude_CDS.bed"))
-b = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Afp_Alb/", i, "_region.aware_core_region.filter.exclude_CDS.bed"))
+a = read.table(paste0(work_path, "/Afp_Alb/", i, "_region.exclude_CDS.bed"))
+b = read.table(paste0(work_path, "/Afp_Alb/", i, "_region.aware_core_region.filter.exclude_CDS.bed"))
 print(sum(b$V3 - b$V2)/sum(a$V3 - a$V2))
 ### 1%
 
-c = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Afp_Alb/", i, "_region.exclude_CDS.bedgraph"))
-d = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Afp_Alb/", i, "_region.aware_core_region.filter.exclude_CDS.bedgraph"))
+c = read.table(paste0(work_path, "/Afp_Alb/", i, "_region.exclude_CDS.bedgraph"))
+d = read.table(paste0(work_path, "/Afp_Alb/", i, "_region.aware_core_region.filter.exclude_CDS.bedgraph"))
 cutoff = 2
 print(sum(d$V3[d$V4 > cutoff] - d$V2[d$V4 > cutoff])/sum(c$V3[c$V4 > cutoff] - c$V2[c$V4 > cutoff]))
 ### 8%

@@ -23,13 +23,13 @@ work_path = ""
 web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
 source("help_code/utils.R")
 
-window_list = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list.rds"))
-window_list_uniq = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list_uniq.rds"))
+window_list = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list.rds"))
+window_list_uniq = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list_uniq.rds"))
 window_list_uniq_x = as.vector(window_list_uniq$window_ID)
 ### n = 547317, which are passed median corr > 0.6 acorss mammals
 
-dat = read.table(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/tmp_Mus_musculus/dat_sub.txt"))
-pd = read.table(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/tmp_Mus_musculus/peak_list_sub.txt"))
+dat = read.table(paste0(work_path, "/tmp_Mus_musculus/dat_sub.txt"))
+pd = read.table(paste0(work_path, "/tmp_Mus_musculus/peak_list_sub.txt"))
 ### n = 1,465,915 windows
 
 colnames(pd) = c("chr", "start", "end")
@@ -38,7 +38,8 @@ rownames(dat) = as.vector(pd$window_id)
 dat = dat[as.vector(window_list_uniq$window_id),]
 rownames(dat) = window_list_uniq_x
 
-write.table(dat, paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/dat.txt"), row.names = F, col.names = F, sep = "\t", quote = F)
+write.table(dat, paste0(work_path, "/umap_Mus_musculus/dat.txt"), row.names = F, col.names = F, sep = "\t", quote = F)
+
 
 ###########################
 ### Step-2: performing UMAP
@@ -50,7 +51,7 @@ import umap
 import os, sys
 
 work_path = "XXX"
-mat = np.loadtxt(f"{work_path}/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/dat.txt")
+mat = np.loadtxt(f"{work_path}/umap_Mus_musculus/dat.txt")
 
 #### performing UMAP
 reducer = umap.UMAP(
@@ -60,7 +61,7 @@ reducer = umap.UMAP(
     n_components=2,
     random_state=42)
 embedding = reducer.fit_transform(mat)
-pd.DataFrame(embedding).to_csv(f"{work_path}/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/umap_embedding_N30.txt", sep="\t", header=False, index=False)
+pd.DataFrame(embedding).to_csv(f"{work_path}/umap_Mus_musculus/umap_embedding_N30.txt", sep="\t", header=False, index=False)
 
 reducer = umap.UMAP(
     n_neighbors=30,
@@ -69,7 +70,7 @@ reducer = umap.UMAP(
     n_components=3,
     random_state=42)
 embedding = reducer.fit_transform(mat)
-pd.DataFrame(embedding).to_csv(f"{work_path}/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/umap_embedding_N30_3D.txt", sep="\t", header=False, index=False)
+pd.DataFrame(embedding).to_csv(f"{work_path}/umap_Mus_musculus/umap_embedding_N30_3D.txt", sep="\t", header=False, index=False)
 
 #### creating Knn graph using annoy (fast way)
 dist_metric = 'euclidean'
@@ -88,7 +89,7 @@ for iCell in range(ncell):
     knn.append(annoy_index.get_nns_by_item(iCell, k + 1)[1:])
 
 knn = np.array(knn, dtype=int)
-np.savetxt(f"{work_path}/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/kNN_30.txt", knn, delimiter=",", fmt='%s')
+np.savetxt(f"{work_path}/umap_Mus_musculus/kNN_30.txt", knn, delimiter=",", fmt='%s')
 
 
 
@@ -99,18 +100,18 @@ work_path = ""
 web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
 source("help_code/utils.R")
 
-window_list = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list.rds"))
-window_list_uniq = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list_uniq.rds"))
+window_list = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list.rds"))
+window_list_uniq = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list_uniq.rds"))
 window_list_uniq_x = as.vector(window_list_uniq$window_ID)
 ### n = 547317, which are passed median corr > 0.6 acorss mammals
 
-emb = read.table(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/umap_embedding_N30.txt"))
+emb = read.table(paste0(work_path, "/umap_Mus_musculus/umap_embedding_N30.txt"))
 pd = data.frame(window_ID = window_list_uniq_x, UMAP_1 = emb[,1], UMAP_2 = emb[,2])
 rownames(emb) = as.vector(pd$window_ID)
 
 pd = pd %>% left_join(window_list_uniq[,c("window_ID","promoter")], by = "window_ID")
 
-nn_matrix = read.table(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/kNN_30.txt"), sep=",")
+nn_matrix = read.table(paste0(work_path, "/umap_Mus_musculus/kNN_30.txt"), sep=",")
 nn_matrix = as.matrix(nn_matrix)
 nn_matrix = nn_matrix + 1 ### python index to R index
 
@@ -192,9 +193,9 @@ anno[pd$louvain_cluster %in% paste0("cluster_", c(6,11))] = "Olfactory_neurons"
 
 pd$anno_L1 = as.vector(anno)
 fig = plot_ly(pd, x=~UMAP_3D_1, y=~UMAP_3D_2, z=~UMAP_3D_3, size = I(30), color = ~anno_L1)
-saveWidget(fig, paste0(save_path, "/14_crested/Mus_musculus_3D_UMAP_anno_L1.html"), selfcontained = FALSE, libdir = "tmp")
+saveWidget(fig, paste0(save_path, "/Mus_musculus_3D_UMAP_anno_L1.html"), selfcontained = FALSE, libdir = "tmp")
 
-saveRDS(pd, paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/pd.rds"))
+saveRDS(pd, paste0(work_path, "/umap_Mus_musculus/pd.rds"))
 
 ### create a heatmap for comparing cell type vs. major cluster 
 
@@ -232,33 +233,31 @@ dev.off()
 ####################################################
 ### Step-5: checking distance to TSS for each window
 
-window_list_uniq = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list_uniq.rds"))
+window_list_uniq = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list_uniq.rds"))
 write.table(window_list_uniq[,c("chr", "start", "end", "window_ID")],
-            paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/window_list.bed"), row.names=F, col.names=F, sep="\t", quote=F)
+            paste0(work_path, "/umap_Mus_musculus/window_list.bed"), row.names=F, col.names=F, sep="\t", quote=F)
 
-###  
-DATAPATH=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested_backup/celltype_L2_cut_norm/compare_gene_exp/
-    bedtools intersect -a window_list.bed -b $DATAPATH/TSS_250kb.bed -wa -wb > window_list_overlap_TSS_250kb.bed
 
+### bedtools intersect -a window_list.bed -b $DATAPATH/TSS_250kb.bed -wa -wb > window_list_overlap_TSS_250kb.bed
 
 >>> R
 dat = read.table(paste0(work_path,
-                        "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/window_list_overlap_TSS_250kb.bed"))
+                        "/umap_Mus_musculus/window_list_overlap_TSS_250kb.bed"))
 colnames(dat) = c("chr","start","end","window_ID","gene_chr","gene_start","gene_end","gene_strand","transcript_ID")
 dat$TSS = round((dat$gene_start + dat$gene_end)/2)
 dat$distance_TSS = round((dat$start + dat$end)/2 - (dat$gene_start + dat$gene_end)/2)
 dat$abs_distance_TSS = abs(dat$distance_TSS)
 dat_min = dat %>% group_by(window_ID) %>% slice_min(order_by = abs_distance_TSS, n = 1, with_ties = F)
 
-pd = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/pd.rds"))
+pd = readRDS(paste0(work_path, "/umap_Mus_musculus/pd.rds"))
 pd = pd %>% left_join(dat_min[,c("window_ID","chr","start","end","distance_TSS","TSS","transcript_ID")], by = "window_ID")
 
-mouse_gene = read.table("/net/gs/vol1/home/cxqiu/work/tome/code/mouse.v12.geneID.transcriptID.txt", header = T, as.is = T)
+mouse_gene = read.table("mouse.v12.geneID.transcriptID.txt", header = T, as.is = T)
 pd = pd %>% left_join(mouse_gene[,c("transcript_ID", "gene_short_name")], by = "transcript_ID")
 
 pd_out = pd[,c("anno_L2","window_ID","chr","start","end","TSS","distance_TSS","transcript_ID","gene_short_name")]
 pd_out = pd_out[pd_out$anno_L2 != 'Promoters' & !is.na(pd_out$TSS),]
-write.csv(pd_out, "~/share/window_list_nearest_TSS_gene.csv", quote=F)
+write.csv(pd_out, "window_list_nearest_TSS_gene.csv", quote=F)
 
 pd$distance_TSS[is.na(pd$distance_TSS)] = 250000
 pd$anno_L2 = factor(pd$anno_L2, levels = rev(col_names))
@@ -285,24 +284,23 @@ p2 = pd %>% ggplot() +
     scale_fill_manual(values=window_cluster_color_plate) +
     coord_flip()
 
-ggsave("~/share/window_cluster_dist_num.pdf", p1 + p2, height = 10, width = 10)
+ggsave("window_cluster_dist_num.pdf", p1 + p2, height = 10, width = 10)
 
 
 #################################################
 ### Step-6: merging windows within each cell type
 
-pd = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/pd.rds"))
-window_list_uniq = readRDS(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/corr_Mus_musculus/window_list_uniq.rds"))
+pd = readRDS(paste0(work_path, "/umap_Mus_musculus/pd.rds"))
+window_list_uniq = readRDS(paste0(work_path, "/corr_Mus_musculus/window_list_uniq.rds"))
 anno_L2 = names(table(pd$anno_L2))
 for(anno in anno_L2){
     print(anno)
     x = window_list_uniq[pd$anno_L2 == anno,]
     write.table(x[,c("chr","start","end","window_ID")], 
-                paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/window_merge/", anno, ".bed"), row.names=F, col.names=F, sep="\t", quote=F)
+                paste0(work_path, "/umap_Mus_musculus/window_merge/", anno, ".bed"), row.names=F, col.names=F, sep="\t", quote=F)
 }
 
 >>>
-DATAPATH=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/window_merge
 FILELIST=(Adipocyte_cells Adipocyte_cells_Cyp2e1 Cardiomyocytes Skeletal_muscle_cells Mesoderm Lateral_plate_and_intermediate_mesoderm White_blood_cells B_cells T_cells Brain_capillary_endothelial_cells Endocardial_cells Glomerular_endothelial_cells Liver_sinusoidal_endothelial_cells Lymphatic_vessel_endothelial_cells Endothelium Erythroid_cells Promoters Neuroectoderm_and_glia CNS_neurons Neural_crest_PNS_neurons Olfactory_neurons Corticofugal_neurons Glia Olfactory_ensheathing_cells Melanocyte_cells Oligodendrocytes Intermediate_neuronal_progenitors Eye Lung_and_airway Gut_epithelial_cells Hepatocytes Kidney Epithelial_cells)
 for FILE in "${FILELIST[@]}"; do
     echo ${FILE}
@@ -315,7 +313,7 @@ merge_num = NULL
 windows_merge = NULL
 for(anno in anno_L2){
     print(anno)
-    x = read.table(paste0(work_path, "/14_crested/celltype_L2_cut_norm/prediction_mammals/umap_Mus_musculus/window_merge/", anno, ".merge.bed"))
+    x = read.table(paste0(work_path, "/umap_Mus_musculus/window_merge/", anno, ".merge.bed"))
     merge_num = rbind(merge_num, data.frame(anno_L2 = anno, num = nrow(x)))
     x$anno_L2 = anno
     windows_merge = rbind(windows_merge, x)

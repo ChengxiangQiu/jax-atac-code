@@ -1,19 +1,20 @@
 
-###################################
-### move fasta to the other cluster
 
-mamm_list=(Acinonyx_jubatus Acomys_cahirinus Ailuropoda_melanoleuca Ailurus_fulgens Allactaga_bullata Alouatta_palliata Ammotragus_lervia Anoura_caudifer Antilocapra_americana Aotus_nancymaae Aplodontia_rufa Artibeus_jamaicensis Ateles_geoffroyi Balaenoptera_acutorostrata Balaenoptera_bonaerensis Beatragus_hunteri Bison_bison Bos_indicus Bos_mutus Bos_taurus Bubalus_bubalis Callicebus_donacophilus Callithrix_jacchus Camelus_bactrianus Camelus_dromedarius Camelus_ferus Canis_lupus Canis_lupus_familiaris Capra_aegagrus Capra_hircus Capromys_pilorides Carollia_perspicillata Castor_canadensis Catagonus_wagneri Cavia_aperea Cavia_porcellus Cavia_tschudii Cebus_albifrons Cebus_capucinus Ceratotherium_simum Ceratotherium_simum_cottoni Cercocebus_atys Cercopithecus_neglectus Chaetophractus_vellerosus Cheirogaleus_medius Chinchilla_lanigera Chlorocebus_sabaeus Choloepus_didactylus Choloepus_hoffmanni Chrysochloris_asiatica Colobus_angolensis Condylura_cristata Craseonycteris_thonglongyai Cricetomys_gambianus Cricetulus_griseus Crocidura_indochinensis Cryptoprocta_ferox Ctenodactylus_gundi Ctenomys_sociabilis Cuniculus_paca Dasyprocta_punctata Dasypus_novemcinctus Daubentonia_madagascariensis Delphinapterus_leucas Desmodus_rotundus Dicerorhinus_sumatrensis Diceros_bicornis Dinomys_branickii Dipodomys_ordii Dipodomys_stephensi Dolichotis_patagonum Echinops_telfairi Eidolon_helvum Elaphurus_davidianus Elephantulus_edwardii Ellobius_lutescens Ellobius_talpinus Enhydra_lutris Eptesicus_fuscus Equus_asinus Equus_caballus Equus_przewalskii Erinaceus_europaeus Erythrocebus_patas Eschrichtius_robustus Eubalaena_japonica Eulemur_flavifrons Eulemur_fulvus Felis_catus Felis_nigripes Fukomys_damarensis Galeopterus_variegatus Giraffa_tippelskirchi Glis_glis Gorilla_gorilla Graphiurus_murinus Helogale_parvula Hemitragus_hylocrius Heterocephalus_glaber Heterohyrax_brucei Hippopotamus_amphibius Hipposideros_armiger Hipposideros_galeritus Homo_sapiens Hyaena_hyaena Hydrochoerus_hydrochaeris Hystrix_cristata Ictidomys_tridecemlineatus Indri_indri Inia_geoffrensis Jaculus_jaculus Kogia_breviceps Lasiurus_borealis Lemur_catta Leptonychotes_weddellii Lepus_americanus Lipotes_vexillifer Loxodonta_africana Lycaon_pictus Macaca_fascicularis Macaca_mulatta Macaca_nemestrina Macroglossus_sobrinus Mandrillus_leucophaeus Manis_javanica Manis_pentadactyla Marmota_marmota Megaderma_lyra Mellivora_capensis Meriones_unguiculatus Mesocricetus_auratus Mesoplodon_bidens Microcebus_murinus Microgale_talazaci Micronycteris_hirsuta Microtus_ochrogaster Miniopterus_natalensis Miniopterus_schreibersii Mirounga_angustirostris Mirza_coquereli Monodon_monoceros Mormoops_blainvillei Moschus_moschiferus Mungos_mungo Murina_feae Mus_caroli Mus_pahari Mus_spretus Muscardinus_avellanarius Mustela_putorius Myocastor_coypus Myotis_brandtii Myotis_davidii Myotis_lucifugus Myotis_myotis Myrmecophaga_tridactyla Nannospalax_galili Nasalis_larvatus Neomonachus_schauinslandi Neophocaena_asiaeorientalis Noctilio_leporinus Nomascus_leucogenys Nycticebus_coucang Ochotona_princeps Octodon_degus Odobenus_rosmarus Odocoileus_virginianus Okapia_johnstoni Ondatra_zibethicus Onychomys_torridus Orcinus_orca Orycteropus_afer Oryctolagus_cuniculus Otolemur_garnettii Ovis_aries Ovis_canadensis Pan_paniscus Pan_troglodytes Panthera_onca Panthera_pardus Panthera_tigris Pantholops_hodgsonii Papio_anubis Paradoxurus_hermaphroditus Perognathus_longimembris Peromyscus_maniculatus Petromus_typicus Phocoena_phocoena Piliocolobus_tephrosceles Pipistrellus_pipistrellus Pithecia_pithecia Platanista_gangetica Pongo_abelii Procavia_capensis Propithecus_coquereli Psammomys_obesus Pteronotus_parnellii Pteronura_brasiliensis Pteropus_alecto Pteropus_vampyrus Puma_concolor Pygathrix_nemaeus Rangifer_tarandus Rattus_norvegicus Rhinolophus_sinicus Rhinopithecus_bieti Rhinopithecus_roxellana Rousettus_aegyptiacus Saguinus_imperator Saiga_tatarica Saimiri_boliviensis Scalopus_aquaticus Semnopithecus_entellus Sigmodon_hispidus Solenodon_paradoxus Sorex_araneus Spermophilus_dauricus Spilogale_gracilis Suricata_suricatta Sus_scrofa Tadarida_brasiliensis Tamandua_tetradactyla Tapirus_indicus Tapirus_terrestris Thryonomys_swinderianus Tolypeutes_matacus Tonatia_saurophila Tragulus_javanicus Trichechus_manatus Tupaia_chinensis Tupaia_tana Tursiops_truncatus Uropsilus_gracilis Ursus_maritimus Vicugna_pacos Vulpes_lagopus Xerus_inauris Zalophus_californianus Zapus_hudsonius Ziphius_cavirostris)
-target_mamm="${mamm_list[$SGE_TASK_ID - 1]}"
-echo $target_mamm
-
-mamm=Mus_musculus
-script_path=/net/shendure/vol10/projects/cxqiu/nobackup/install/cactus-bin-v2.9.9/bin
-data_path=/net/shendure/vol8/projects/tli/ucsc_cactus/
-work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_15/Afp_TSS/liftover
+##########################################################
+### Focusing on Afp TSS region predicted by STEAM-v1 model
 
 
-######################
-### perform prediction
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
+
+
+
+
+##############################
+### Step-1: perform prediction
 
 import sys, os
 import anndata as ad
@@ -25,16 +26,16 @@ import keras
 import pysam
 from collections import defaultdict
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
-model_id = "mouse_fake_track_15"
+work_path = ""
+model_id = ""
 
-model_path = f"{work_path}/mouse_fake_track_15/mamm_32/window_cluster/finetuned_model_1e5/checkpoints/02.keras"
+model_path = f"STEAM-v1-model.keras"
 model = keras.models.load_model(model_path, compile=False)
 
 #celltype_list = ["Hepatocytes", "Erythroid_cells"]
 celltype_list = ["Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells"]
 
-adata = ad.read_h5ad(f"{work_path}/mouse_fake_track_15/data_window_cluster_mouse.top3K.h5ad")
+adata = ad.read_h5ad(f"{work_path}/data_window_cluster_mouse.top3K.h5ad")
 
 with open(f"{work_path}/{model_id}/Afp_TSS/candidate_liftover_regions.txt") as f:
     mamm_list = [line.rstrip().split("\t")[3] for line in f if line.rstrip().split("\t")[3] != "species"]
@@ -71,12 +72,10 @@ for mamm in mamm_list:
 
 
 
-############################################
-### asking how many elements in each species
+######################################################
+### Step-2: counting how many elements in each species
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-source("~/work/scripts/utils.R")
+
 library(tidyr)
 library(GenomicRanges)
 library(dplyr)
@@ -120,12 +119,10 @@ saveRDS(dat, paste0(work_path, "/14_crested/", model_id, "/Afp_TSS/prediction_mu
 
 
 
-#####################################################
-### Identify core region for Afp TSS region 
+###################################################
+### Step-3: Identify core region for Afp TSS region 
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-source("~/work/scripts/utils.R")
+
 library(tidyr)
 library(GenomicRanges)
 library(dplyr)
@@ -176,7 +173,7 @@ import anndata as ad
 import crested
 import keras
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
+work_path = ""
 
 ########################################
 # Constants
@@ -194,7 +191,7 @@ n_reps = 10
 # FASTA + model
 ########################################
 
-model_path = f"{work_path}/{model_id}/mamm_32/window_cluster/finetuned_model_1e5/checkpoints/02.keras"
+model_path = f"STEAM-v1-model.keras"
 model = keras.models.load_model(model_path, compile=False)
 
 adata = ad.read_h5ad(f"{work_path}/{model_id}/data_window_cluster_mouse.top3K.h5ad")
@@ -339,10 +336,7 @@ for mamm in mamm_list:
 ##################################
 #### Identify core regions
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-source("~/work/scripts/utils.R")
-options(scipen = 999)
+
 
 celltype_list = c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 

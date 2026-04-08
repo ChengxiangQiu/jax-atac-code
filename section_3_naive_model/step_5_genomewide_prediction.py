@@ -9,7 +9,7 @@
 ### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
 
 ### The evolution naive model is available:
-### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/evolution_naive.keras
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/CREsted_model/evolution_naive_model.keras
 
 ###################################################
 ### Step-1: Genomewide prediction using naive model
@@ -32,7 +32,7 @@ mamm = mamm_list[int(sys.argv[1]) - 1]
 print(mamm)
 
 # load a trained model
-model_path = "evolution_naive.keras"
+model_path = "evolution_naive_model.keras"
 model = keras.models.load_model(model_path, compile=False)  # change to your model path
 
 output_path = os.path.join(work_path, "celltype_L2_cut_norm", "prediction_mammals", f"prediction_{mamm}")

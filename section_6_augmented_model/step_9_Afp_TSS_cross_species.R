@@ -1,15 +1,27 @@
 
-##############################################
-### liftover between 135 species x 135 species
+############################################################
+### Comparing cross-species enhancers around Afp TSS regions
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
+
+
+
+
+######################################################
+### Step-1: liftover between 135 species x 135 species
 
 mamm_list=(Acinonyx_jubatus Ailuropoda_melanoleuca Ailurus_fulgens Anoura_caudifer Antilocapra_americana Aotus_nancymaae Balaenoptera_acutorostrata Bison_bison Bos_indicus Bos_mutus Bos_taurus Callithrix_jacchus Camelus_bactrianus Camelus_dromedarius Camelus_ferus Canis_lupus Canis_lupus_familiaris Capra_aegagrus Capra_hircus Cavia_aperea Cavia_porcellus Cebus_albifrons Cebus_capucinus Ceratotherium_simum Cercocebus_atys Cheirogaleus_medius Chlorocebus_sabaeus Choloepus_hoffmanni Colobus_angolensis Condylura_cristata Cricetomys_gambianus Cricetulus_griseus Ctenodactylus_gundi Dasypus_novemcinctus Daubentonia_madagascariensis Delphinapterus_leucas Desmodus_rotundus Dicerorhinus_sumatrensis Diceros_bicornis Dipodomys_ordii Echinops_telfairi Elaphurus_davidianus Elephantulus_edwardii Enhydra_lutris Eptesicus_fuscus Equus_asinus Equus_caballus Equus_przewalskii Eschrichtius_robustus Eubalaena_japonica Eulemur_flavifrons Felis_catus Fukomys_damarensis Gorilla_gorilla Hemitragus_hylocrius Heterocephalus_glaber Hipposideros_armiger Homo_sapiens Ictidomys_tridecemlineatus Jaculus_jaculus Leptonychotes_weddellii Lipotes_vexillifer Loxodonta_africana Lycaon_pictus Macaca_fascicularis Macaca_mulatta Macaca_nemestrina Macroglossus_sobrinus Mandrillus_leucophaeus Manis_javanica Marmota_marmota Megaderma_lyra Meriones_unguiculatus Mesocricetus_auratus Microcebus_murinus Micronycteris_hirsuta Microtus_ochrogaster Miniopterus_natalensis Monodon_monoceros Mus_caroli Mus_musculus Mus_pahari Mus_spretus Mustela_putorius Myocastor_coypus Myotis_brandtii Myotis_davidii Myotis_lucifugus Nannospalax_galili Neomonachus_schauinslandi Neophocaena_asiaeorientalis Nomascus_leucogenys Ochotona_princeps Octodon_degus Odobenus_rosmarus Odocoileus_virginianus Orcinus_orca Oryctolagus_cuniculus Otolemur_garnettii Ovis_aries Ovis_canadensis Pan_paniscus Pan_troglodytes Panthera_onca Panthera_pardus Panthera_tigris Papio_anubis Paradoxurus_hermaphroditus Peromyscus_maniculatus Piliocolobus_tephrosceles Pithecia_pithecia Pongo_abelii Propithecus_coquereli Pteropus_alecto Pteropus_vampyrus Puma_concolor Rangifer_tarandus Rattus_norvegicus Rhinolophus_sinicus Rhinopithecus_bieti Saguinus_imperator Saimiri_boliviensis Sorex_araneus Spermophilus_dauricus Suricata_suricatta Sus_scrofa Tapirus_indicus Tapirus_terrestris Tragulus_javanicus Trichechus_manatus Tupaia_chinensis Tursiops_truncatus Ursus_maritimus Vicugna_pacos Vulpes_lagopus)
 target_mamm_list=(Acinonyx_jubatus Ailuropoda_melanoleuca Ailurus_fulgens Anoura_caudifer Antilocapra_americana Aotus_nancymaae Balaenoptera_acutorostrata Bison_bison Bos_indicus Bos_mutus Bos_taurus Callithrix_jacchus Camelus_bactrianus Camelus_dromedarius Camelus_ferus Canis_lupus Canis_lupus_familiaris Capra_aegagrus Capra_hircus Cavia_aperea Cavia_porcellus Cebus_albifrons Cebus_capucinus Ceratotherium_simum Cercocebus_atys Cheirogaleus_medius Chlorocebus_sabaeus Choloepus_hoffmanni Colobus_angolensis Condylura_cristata Cricetomys_gambianus Cricetulus_griseus Ctenodactylus_gundi Dasypus_novemcinctus Daubentonia_madagascariensis Delphinapterus_leucas Desmodus_rotundus Dicerorhinus_sumatrensis Diceros_bicornis Dipodomys_ordii Echinops_telfairi Elaphurus_davidianus Elephantulus_edwardii Enhydra_lutris Eptesicus_fuscus Equus_asinus Equus_caballus Equus_przewalskii Erinaceus_europaeus Eschrichtius_robustus Eubalaena_japonica Eulemur_flavifrons Felis_catus Fukomys_damarensis Gorilla_gorilla Hemitragus_hylocrius Heterocephalus_glaber Hipposideros_armiger Homo_sapiens Ictidomys_tridecemlineatus Jaculus_jaculus Leptonychotes_weddellii Lipotes_vexillifer Loxodonta_africana Lycaon_pictus Macaca_fascicularis Macaca_mulatta Macaca_nemestrina Macroglossus_sobrinus Mandrillus_leucophaeus Manis_javanica Marmota_marmota Megaderma_lyra Meriones_unguiculatus Mesocricetus_auratus Microcebus_murinus Micronycteris_hirsuta Microtus_ochrogaster Miniopterus_natalensis Monodon_monoceros Mus_caroli Mus_musculus Mus_pahari Mus_spretus Mustela_putorius Myocastor_coypus Myotis_brandtii Myotis_davidii Myotis_lucifugus Nannospalax_galili Neomonachus_schauinslandi Neophocaena_asiaeorientalis Nomascus_leucogenys Ochotona_princeps Octodon_degus Odobenus_rosmarus Odocoileus_virginianus Orcinus_orca Oryctolagus_cuniculus Otolemur_garnettii Ovis_aries Ovis_canadensis Pan_paniscus Pan_troglodytes Panthera_onca Panthera_pardus Panthera_tigris Papio_anubis Paradoxurus_hermaphroditus Peromyscus_maniculatus Piliocolobus_tephrosceles Pithecia_pithecia Pongo_abelii Propithecus_coquereli Pteropus_alecto Pteropus_vampyrus Puma_concolor Rangifer_tarandus Rattus_norvegicus Rhinolophus_sinicus Rhinopithecus_bieti Saguinus_imperator Saimiri_boliviensis Sorex_araneus Spermophilus_dauricus Suricata_suricatta Sus_scrofa Tapirus_indicus Tapirus_terrestris Tragulus_javanicus Trichechus_manatus Tupaia_chinensis Tursiops_truncatus Ursus_maritimus Vicugna_pacos Vulpes_lagopus)
 mamm="${mamm_list[$SGE_TASK_ID - 1]}"
 echo $mamm
 
-script_path=/net/shendure/vol10/projects/cxqiu/nobackup/install/cactus-bin-v2.9.9/bin
-data_path=/net/shendure/vol8/projects/tli/ucsc_cactus/
-work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_15
+script_path=/cactus-bin-v2.9.9/bin
+data_path=XXX
+work_path=XXX
 celltype=Hepatocytes
 
 mkdir -p "$work_path/Afp_TSS_cross_species/liftover/$mamm"
@@ -22,16 +34,16 @@ for target_mamm in "${target_mamm_list[@]}"; do
 done
 
 
-##############################################################
-######## After lifting over, filtering and stitching fragments
+#################################################################
+### Step-2: After lifting over, filtering and stitching fragments
 
 mamm_list=(Acinonyx_jubatus Ailuropoda_melanoleuca Ailurus_fulgens Anoura_caudifer Antilocapra_americana Aotus_nancymaae Balaenoptera_acutorostrata Bison_bison Bos_indicus Bos_mutus Bos_taurus Callithrix_jacchus Camelus_bactrianus Camelus_dromedarius Camelus_ferus Canis_lupus Canis_lupus_familiaris Capra_aegagrus Capra_hircus Cavia_aperea Cavia_porcellus Cebus_albifrons Cebus_capucinus Ceratotherium_simum Cercocebus_atys Cheirogaleus_medius Chlorocebus_sabaeus Choloepus_hoffmanni Colobus_angolensis Condylura_cristata Cricetomys_gambianus Cricetulus_griseus Ctenodactylus_gundi Dasypus_novemcinctus Daubentonia_madagascariensis Delphinapterus_leucas Desmodus_rotundus Dicerorhinus_sumatrensis Diceros_bicornis Dipodomys_ordii Echinops_telfairi Elaphurus_davidianus Elephantulus_edwardii Enhydra_lutris Eptesicus_fuscus Equus_asinus Equus_caballus Equus_przewalskii Eschrichtius_robustus Eubalaena_japonica Eulemur_flavifrons Felis_catus Fukomys_damarensis Gorilla_gorilla Hemitragus_hylocrius Heterocephalus_glaber Hipposideros_armiger Homo_sapiens Ictidomys_tridecemlineatus Jaculus_jaculus Leptonychotes_weddellii Lipotes_vexillifer Loxodonta_africana Lycaon_pictus Macaca_fascicularis Macaca_mulatta Macaca_nemestrina Macroglossus_sobrinus Mandrillus_leucophaeus Manis_javanica Marmota_marmota Megaderma_lyra Meriones_unguiculatus Mesocricetus_auratus Microcebus_murinus Micronycteris_hirsuta Microtus_ochrogaster Miniopterus_natalensis Monodon_monoceros Mus_caroli Mus_musculus Mus_pahari Mus_spretus Mustela_putorius Myocastor_coypus Myotis_brandtii Myotis_davidii Myotis_lucifugus Nannospalax_galili Neomonachus_schauinslandi Neophocaena_asiaeorientalis Nomascus_leucogenys Ochotona_princeps Octodon_degus Odobenus_rosmarus Odocoileus_virginianus Orcinus_orca Oryctolagus_cuniculus Otolemur_garnettii Ovis_aries Ovis_canadensis Pan_paniscus Pan_troglodytes Panthera_onca Panthera_pardus Panthera_tigris Papio_anubis Paradoxurus_hermaphroditus Peromyscus_maniculatus Piliocolobus_tephrosceles Pithecia_pithecia Pongo_abelii Propithecus_coquereli Pteropus_alecto Pteropus_vampyrus Puma_concolor Rangifer_tarandus Rattus_norvegicus Rhinolophus_sinicus Rhinopithecus_bieti Saguinus_imperator Saimiri_boliviensis Sorex_araneus Spermophilus_dauricus Suricata_suricatta Sus_scrofa Tapirus_indicus Tapirus_terrestris Tragulus_javanicus Trichechus_manatus Tupaia_chinensis Tursiops_truncatus Ursus_maritimus Vicugna_pacos Vulpes_lagopus)
 target_mamm_list=(Acinonyx_jubatus Ailuropoda_melanoleuca Ailurus_fulgens Anoura_caudifer Antilocapra_americana Aotus_nancymaae Balaenoptera_acutorostrata Bison_bison Bos_indicus Bos_mutus Bos_taurus Callithrix_jacchus Camelus_bactrianus Camelus_dromedarius Camelus_ferus Canis_lupus Canis_lupus_familiaris Capra_aegagrus Capra_hircus Cavia_aperea Cavia_porcellus Cebus_albifrons Cebus_capucinus Ceratotherium_simum Cercocebus_atys Cheirogaleus_medius Chlorocebus_sabaeus Choloepus_hoffmanni Colobus_angolensis Condylura_cristata Cricetomys_gambianus Cricetulus_griseus Ctenodactylus_gundi Dasypus_novemcinctus Daubentonia_madagascariensis Delphinapterus_leucas Desmodus_rotundus Dicerorhinus_sumatrensis Diceros_bicornis Dipodomys_ordii Echinops_telfairi Elaphurus_davidianus Elephantulus_edwardii Enhydra_lutris Eptesicus_fuscus Equus_asinus Equus_caballus Equus_przewalskii Erinaceus_europaeus Eschrichtius_robustus Eubalaena_japonica Eulemur_flavifrons Felis_catus Fukomys_damarensis Gorilla_gorilla Hemitragus_hylocrius Heterocephalus_glaber Hipposideros_armiger Homo_sapiens Ictidomys_tridecemlineatus Jaculus_jaculus Leptonychotes_weddellii Lipotes_vexillifer Loxodonta_africana Lycaon_pictus Macaca_fascicularis Macaca_mulatta Macaca_nemestrina Macroglossus_sobrinus Mandrillus_leucophaeus Manis_javanica Marmota_marmota Megaderma_lyra Meriones_unguiculatus Mesocricetus_auratus Microcebus_murinus Micronycteris_hirsuta Microtus_ochrogaster Miniopterus_natalensis Monodon_monoceros Mus_caroli Mus_musculus Mus_pahari Mus_spretus Mustela_putorius Myocastor_coypus Myotis_brandtii Myotis_davidii Myotis_lucifugus Nannospalax_galili Neomonachus_schauinslandi Neophocaena_asiaeorientalis Nomascus_leucogenys Ochotona_princeps Octodon_degus Odobenus_rosmarus Odocoileus_virginianus Orcinus_orca Oryctolagus_cuniculus Otolemur_garnettii Ovis_aries Ovis_canadensis Pan_paniscus Pan_troglodytes Panthera_onca Panthera_pardus Panthera_tigris Papio_anubis Paradoxurus_hermaphroditus Peromyscus_maniculatus Piliocolobus_tephrosceles Pithecia_pithecia Pongo_abelii Propithecus_coquereli Pteropus_alecto Pteropus_vampyrus Puma_concolor Rangifer_tarandus Rattus_norvegicus Rhinolophus_sinicus Rhinopithecus_bieti Saguinus_imperator Saimiri_boliviensis Sorex_araneus Spermophilus_dauricus Suricata_suricatta Sus_scrofa Tapirus_indicus Tapirus_terrestris Tragulus_javanicus Trichechus_manatus Tupaia_chinensis Tursiops_truncatus Ursus_maritimus Vicugna_pacos Vulpes_lagopus)
 mamm="${mamm_list[$SGE_TASK_ID - 1]}"
 echo $mamm
 
-script_path=/net/gs/vol1/home/cxqiu/bin/python_script
-work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_15
+script_path=XXX
+work_path=XXX
 celltype=Hepatocytes
 
 for target_mamm in "${mamm_list[@]}"; do
@@ -42,14 +54,14 @@ for target_mamm in "${mamm_list[@]}"; do
 done
 
 
-#########################################
-######## Overlap enhancers across species
+############################################
+### Step-3: Overlap enhancers across species
 
 mamm_list=(Acinonyx_jubatus Ailuropoda_melanoleuca Ailurus_fulgens Anoura_caudifer Antilocapra_americana Aotus_nancymaae Balaenoptera_acutorostrata Bison_bison Bos_indicus Bos_mutus Bos_taurus Callithrix_jacchus Camelus_bactrianus Camelus_dromedarius Camelus_ferus Canis_lupus Canis_lupus_familiaris Capra_aegagrus Capra_hircus Cavia_aperea Cavia_porcellus Cebus_albifrons Cebus_capucinus Ceratotherium_simum Cercocebus_atys Cheirogaleus_medius Chlorocebus_sabaeus Choloepus_hoffmanni Colobus_angolensis Condylura_cristata Cricetomys_gambianus Cricetulus_griseus Ctenodactylus_gundi Dasypus_novemcinctus Daubentonia_madagascariensis Delphinapterus_leucas Desmodus_rotundus Dicerorhinus_sumatrensis Diceros_bicornis Dipodomys_ordii Echinops_telfairi Elaphurus_davidianus Elephantulus_edwardii Enhydra_lutris Eptesicus_fuscus Equus_asinus Equus_caballus Equus_przewalskii Eschrichtius_robustus Eubalaena_japonica Eulemur_flavifrons Felis_catus Fukomys_damarensis Gorilla_gorilla Hemitragus_hylocrius Heterocephalus_glaber Hipposideros_armiger Homo_sapiens Ictidomys_tridecemlineatus Jaculus_jaculus Leptonychotes_weddellii Lipotes_vexillifer Loxodonta_africana Lycaon_pictus Macaca_fascicularis Macaca_mulatta Macaca_nemestrina Macroglossus_sobrinus Mandrillus_leucophaeus Manis_javanica Marmota_marmota Megaderma_lyra Meriones_unguiculatus Mesocricetus_auratus Microcebus_murinus Micronycteris_hirsuta Microtus_ochrogaster Miniopterus_natalensis Monodon_monoceros Mus_caroli Mus_musculus Mus_pahari Mus_spretus Mustela_putorius Myocastor_coypus Myotis_brandtii Myotis_davidii Myotis_lucifugus Nannospalax_galili Neomonachus_schauinslandi Neophocaena_asiaeorientalis Nomascus_leucogenys Ochotona_princeps Octodon_degus Odobenus_rosmarus Odocoileus_virginianus Orcinus_orca Oryctolagus_cuniculus Otolemur_garnettii Ovis_aries Ovis_canadensis Pan_paniscus Pan_troglodytes Panthera_onca Panthera_pardus Panthera_tigris Papio_anubis Paradoxurus_hermaphroditus Peromyscus_maniculatus Piliocolobus_tephrosceles Pithecia_pithecia Pongo_abelii Propithecus_coquereli Pteropus_alecto Pteropus_vampyrus Puma_concolor Rangifer_tarandus Rattus_norvegicus Rhinolophus_sinicus Rhinopithecus_bieti Saguinus_imperator Saimiri_boliviensis Sorex_araneus Spermophilus_dauricus Suricata_suricatta Sus_scrofa Tapirus_indicus Tapirus_terrestris Tragulus_javanicus Trichechus_manatus Tupaia_chinensis Tursiops_truncatus Ursus_maritimus Vicugna_pacos Vulpes_lagopus)
 mamm="${mamm_list[$SGE_TASK_ID - 1]}"
 echo $mamm
 
-work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_15
+work_path=XXX
 celltype=Hepatocytes
 
 mkdir -p "$work_path/Afp_TSS_cross_species/overlap/$mamm"
@@ -62,13 +74,9 @@ for target_mamm in "${mamm_list[@]}"; do
 done
 
 
-##################################################
-######## adding results together to create network
+#####################################################
+### Step-4: adding results together to create network
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-celltype = "Hepatocytes"
-source("~/work/scripts/utils.R")
 
 mamm_list = c("Acinonyx_jubatus","Ailuropoda_melanoleuca","Ailurus_fulgens","Anoura_caudifer","Antilocapra_americana","Aotus_nancymaae","Balaenoptera_acutorostrata","Bison_bison","Bos_indicus","Bos_mutus","Bos_taurus","Callithrix_jacchus","Camelus_bactrianus","Camelus_dromedarius","Camelus_ferus","Canis_lupus","Canis_lupus_familiaris","Capra_aegagrus","Capra_hircus","Cavia_aperea","Cavia_porcellus","Cebus_albifrons","Cebus_capucinus","Ceratotherium_simum","Cercocebus_atys","Cheirogaleus_medius","Chlorocebus_sabaeus","Choloepus_hoffmanni","Colobus_angolensis","Condylura_cristata","Cricetomys_gambianus","Cricetulus_griseus","Ctenodactylus_gundi","Dasypus_novemcinctus","Daubentonia_madagascariensis","Delphinapterus_leucas","Desmodus_rotundus","Dicerorhinus_sumatrensis","Diceros_bicornis","Dipodomys_ordii","Echinops_telfairi","Elaphurus_davidianus","Elephantulus_edwardii","Enhydra_lutris","Eptesicus_fuscus","Equus_asinus","Equus_caballus","Equus_przewalskii","Eschrichtius_robustus","Eubalaena_japonica","Eulemur_flavifrons","Felis_catus","Fukomys_damarensis","Gorilla_gorilla","Hemitragus_hylocrius","Heterocephalus_glaber","Hipposideros_armiger","Homo_sapiens","Ictidomys_tridecemlineatus","Jaculus_jaculus","Leptonychotes_weddellii","Lipotes_vexillifer","Loxodonta_africana","Lycaon_pictus","Macaca_fascicularis","Macaca_mulatta","Macaca_nemestrina","Macroglossus_sobrinus","Mandrillus_leucophaeus","Manis_javanica","Marmota_marmota","Megaderma_lyra","Meriones_unguiculatus","Mesocricetus_auratus","Microcebus_murinus","Micronycteris_hirsuta","Microtus_ochrogaster","Miniopterus_natalensis","Monodon_monoceros","Mus_caroli","Mus_musculus","Mus_pahari","Mus_spretus","Mustela_putorius","Myocastor_coypus","Myotis_brandtii","Myotis_davidii","Myotis_lucifugus","Nannospalax_galili","Neomonachus_schauinslandi","Neophocaena_asiaeorientalis","Nomascus_leucogenys","Ochotona_princeps","Octodon_degus","Odobenus_rosmarus","Odocoileus_virginianus","Orcinus_orca","Oryctolagus_cuniculus","Otolemur_garnettii","Ovis_aries","Ovis_canadensis","Pan_paniscus","Pan_troglodytes","Panthera_onca","Panthera_pardus","Panthera_tigris","Papio_anubis","Paradoxurus_hermaphroditus","Peromyscus_maniculatus","Piliocolobus_tephrosceles","Pithecia_pithecia","Pongo_abelii","Propithecus_coquereli","Pteropus_alecto","Pteropus_vampyrus","Puma_concolor","Rangifer_tarandus","Rattus_norvegicus","Rhinolophus_sinicus","Rhinopithecus_bieti","Saguinus_imperator","Saimiri_boliviensis","Sorex_araneus","Spermophilus_dauricus","Suricata_suricatta","Sus_scrofa","Tapirus_indicus","Tapirus_terrestris","Tragulus_javanicus","Trichechus_manatus","Tupaia_chinensis","Tursiops_truncatus","Ursus_maritimus","Vicugna_pacos","Vulpes_lagopus")
 
@@ -150,12 +158,9 @@ write.table(edge, paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS_cro
 
 
 ##########################################################
-### Can we plot enhancer clusters in the big scatter plot?
+### Step-5: Plot enhancer clusters in the big scatter plot
 
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-source("~/work/scripts/utils.R")
 library(tidyr)
 
 mamm_list = read.table(paste0(work_path, "/14_crested/", model_id, "/Afp_TSS/species_order.txt"))
@@ -231,23 +236,19 @@ p = ggplot(res_sub, aes(x_axis, y_axis, fill= cluster)) +
       scale_y_discrete(expand = c(0, 0)) +
       theme_void() +
       theme(legend.position="none")
-ggsave(paste0("~/share/heatmap_", celltype, "_multi_enhancer_cluster_zoom_in.png"), p, width = 5, height = 5, dpi = 300)
+ggsave(paste0("heatmap_", celltype, "_multi_enhancer_cluster_zoom_in.png"), p, width = 5, height = 5, dpi = 300)
 
 
 
 
-#########################################################
-### label each of the 9 clusters in the figure to include 
+#################################################################
+### Step-6: label each of the 9 clusters in the figure to include 
 ### a) number of members 
 ### b) number of species
 ### c) distance from TSS +/- stdev
 ### d) phred score +/- stdev
 ### e) mean phyloP score +/- stdev
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-celltype = "Hepatocytes"
-source("~/work/scripts/utils.R")
 
 dat = readRDS(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS/core_region_multispecies.rds"))
 dat = as.data.frame(dat[dat$celltype == celltype,])
@@ -304,16 +305,12 @@ for(i in 1:nrow(x)){
 }
 
 
-#################################################################################
-### For each of the eleven clusters, can you identify the set of syntenic orthologs 
+###########################################################################################
+### Step-7: For each of the eleven clusters, can you identify the set of syntenic orthologs 
 ### for ALL species (Regardless of whether an enhancer was called), and then plot 
 ### a histogram of the corresponding Phred-scores for each? If some are bimodal, 
 ### then we might actually be able to draw a conclusion
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-model_id = "mouse_fake_track_15"
-celltype = "Hepatocytes"
-source("~/work/scripts/utils.R")
 
 dat_phred = readRDS(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_Mus_musculus_trf/dat.txt.rds"))
 
@@ -353,8 +350,8 @@ find_trimmed_overlaps <- function(dat_i, filter_region, return_gr = FALSE) {
     return(result)
 }
 
-target_mamm_list = read.table(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS/species_order.txt"))[,1]
-node = read.table(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS_cross_species/node.txt"), header=T)
+target_mamm_list = read.table(paste0(work_path, "/species_order.txt"))[,1]
+node = read.table(paste0(work_path, "/node.txt"), header=T)
 
 node_cluster = paste0("cluster_", 1:11)
 
@@ -533,6 +530,35 @@ print(f"wrote {out}")
 
 
 
+
+################################################
+### Step-8: Focusing on cluster 8 (close to TSS)
+
+
+df = read.table(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS_cross_species/df.txt"), header=T)
+
+x = df[df$cluster == "cluster_8",]
+
+sum(x$if_enhancer_detected == "yes")/nrow(x)
+
+mean(x$distance)
+sd(x$distance)
+
+### 300 +/- 337
+
+median(x$phred_score)
+### 6.3
+
+mad(x$phred_score)
+### 8.8
+
+mean(x$phred_score[x$if_enhancer_detected == "yes"])
+sd(x$phred_score[x$if_enhancer_detected == "yes"])
+median(x$phred_score[x$if_enhancer_detected == "yes"])
+mad(x$phred_score[x$if_enhancer_detected == "yes"])
+# 28.4 +/- 4.1
+# 26.7
+# 2.2
 
 
 

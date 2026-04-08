@@ -21,8 +21,37 @@ p = ggplot(dat, aes(x = epoch, y = pearson_r, color = num_species, group = num_s
 ggsave("Fig6b_evaluate_multispecies_model.pdf", p, width = 6, height = 5)
 
 
+##############################################################################################
+### Fig. 6c: Hepatocyte enhancer counts per species compared against the other 31 cell classes
+
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/reproducing_figures"
+
+library(ggplot2)
+library(dplyr)
+
+df = read.csv(paste0(web_path, "/Fig6c_number_enhancer_Afp_TSS.csv"))
+
+p = ggplot(data = df, aes(x = category, y = n, fill = category)) +
+    geom_boxplot() +
+    coord_cartesian(ylim = c(0, 10)) +
+    labs(x = "", y = "", title = "") +
+    scale_fill_manual(values = c("Hepatocytes" = "#7aa457", "Others" = "#9e6ebd")) +
+    scale_y_continuous(breaks = seq(0, 10, by = 2)) +
+    theme_classic(base_size = 10) +
+    theme(
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "none",
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black")
+    ) +
+    facet_wrap(~model, ncol = 2)
+
+ggsave("Fig6b_evaluate_multispecies_model.pdf", p, width = 8, height = 5)
+
+
+
 ###################################################################################################################################
-### Fig. 6d: We examined predicted chromatin accessibility using the STEAM-v1 model across a 200 kb region centered on the Afp TSS.
+### Fig. 6e: We examined predicted chromatin accessibility using the STEAM-v1 model across a 200 kb region centered on the Afp TSS.
 
 web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/reproducing_figures"
 
@@ -43,7 +72,7 @@ cluster_color_plate = c(
     "cluster_10" = "#1f77b4",
     "cluster_11" = "#ffbb78")
 
-dat = read.csv(paste0(web_path, "/Fig6d_Afp_Hepatocytes_enhancers.csv"))
+dat = read.csv(paste0(web_path, "/Fig6e_Afp_Hepatocytes_enhancers.csv"))
 
 p = ggplot(dat, aes(x_axis, y_axis, fill= cluster)) + 
     geom_tile() +
@@ -53,9 +82,9 @@ p = ggplot(dat, aes(x_axis, y_axis, fill= cluster)) +
     theme_void() +
     theme(legend.position="none")
 
-ggsave("Fig6d_Afp_Hepatocytes_enhancers.png", p, width = 5, height = 5, dpi = 300)
+ggsave("Fig6e_Afp_Hepatocytes_enhancers.png", p, width = 5, height = 5, dpi = 300)
 
-dat = read.csv(paste0(web_path, "/Fig6d_Afp_Hepatocytes_prediction.csv"))
+dat = read.csv(paste0(web_path, "/Fig6e_Afp_Hepatocytes_prediction.csv"))
 
 p = ggplot(dat, aes(x_axis, y_axis, fill= score)) + 
     geom_tile() +
@@ -66,17 +95,17 @@ p = ggplot(dat, aes(x_axis, y_axis, fill= score)) +
     theme(legend.position="none",
           panel.background = element_rect(fill = "#440154", color = NA))
 
-ggsave("Fig6d_Afp_Hepatocytes_prediction.png", p, width = 5, height = 5, dpi = 300)
+ggsave("Fig6e_Afp_Hepatocytes_prediction.png", p, width = 5, height = 5, dpi = 300)
 
 
 ###############################################################################################################################################################################
-### Fig. 6e: Across nine clusters, lifted regions in species lacking enhancers defined 570 non-enhancers (vs. 591 enhancers), compared by STEAM-v1 scores and Afp TSS distance.
+### Fig. 6f: Across nine clusters, lifted regions in species lacking enhancers defined 570 non-enhancers (vs. 591 enhancers), compared by STEAM-v1 scores and Afp TSS distance.
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-df = pd.read_csv(f"{web_path}/Fig6e_compare_enhancers_and_non_enhancers.csv", sep="\t")
+df = pd.read_csv(f"{web_path}/Fig6f_compare_enhancers_and_non_enhancers.csv", sep="\t")
 
 df["cluster_n"] = df["cluster"].str.replace("cluster_", "").astype(int)
 clusters = sorted(df["cluster_n"].unique())
@@ -126,13 +155,13 @@ for c in clusters:
                  va="center", fontsize=8, color=col)
 
 plt.tight_layout()
-out = "Fig6e_compare_enhancers_and_non_enhancers.pdf"
+out = "Fig6f_compare_enhancers_and_non_enhancers.pdf"
 plt.savefig(out, bbox_inches="tight")
 print(f"wrote {out}")
 
 
 ###################################################
-### Fig. 6f: Zoom-in -10k to +2k of Afp TSS region.
+### Fig. 6g: Zoom-in -10k to +2k of Afp TSS region.
 
 web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/reproducing_figures"
 
@@ -153,7 +182,7 @@ cluster_color_plate = c(
     "cluster_10" = "#1f77b4",
     "cluster_11" = "#ffbb78")
 
-dat = read.csv(paste0(web_path, "/Fig6d_Afp_Hepatocytes_enhancers.csv"))
+dat = read.csv(paste0(web_path, "/Fig6e_Afp_Hepatocytes_enhancers.csv"))
 
 p = ggplot(dat[dat$x_axis > (-10000) & dat$x_axis < 2000,], aes(x_axis, y_axis, fill= cluster)) + 
     geom_tile() +
@@ -163,9 +192,9 @@ p = ggplot(dat[dat$x_axis > (-10000) & dat$x_axis < 2000,], aes(x_axis, y_axis, 
     theme_void() +
     theme(legend.position="none")
 
-ggsave("Fig6d_Afp_Hepatocytes_enhancers.png", p, width = 5, height = 5, dpi = 300)
+ggsave("Fig6g_Afp_Hepatocytes_enhancers_subregion.png", p, width = 5, height = 5, dpi = 300)
 
-dat = read.csv(paste0(web_path, "/Fig6d_Afp_Hepatocytes_prediction.csv"))
+dat = read.csv(paste0(web_path, "/Fig6e_Afp_Hepatocytes_prediction.csv"))
 
 p = ggplot(dat[dat$x_axis > (-100) & dat$x_axis < 20,], aes(x_axis, y_axis, fill= score)) + 
     geom_tile() +
@@ -176,7 +205,7 @@ p = ggplot(dat[dat$x_axis > (-100) & dat$x_axis < 20,], aes(x_axis, y_axis, fill
     theme(legend.position="none",
           panel.background = element_rect(fill = "#440154", color = NA))
 
-ggsave("Fig6f_Afp_Hepatocytes_prediction_subregion.png", p, width = 5, height = 5, dpi = 300)
+ggsave("Fig6g_Afp_Hepatocytes_prediction_subregion.png", p, width = 5, height = 5, dpi = 300)
 
 
 

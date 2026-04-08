@@ -25,6 +25,26 @@ print(paste0("Hepatocytes: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(
 df_x = df[df$celltype != "Hepatocytes",]
 print(paste0("Others: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(df_x$n),1)))
 
+mus_species = c("Mus_musculus", "Mus_spretus", "Mus_caroli", "Mus_pahari")
+df_x = df[df$celltype == "Hepatocytes" & df$species %in% mus_species,]
+print(paste0("Mus-sepcific: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(df_x$n),1)))
+
+p1 = df %>%
+  mutate(category = if_else(celltype == "Hepatocytes", "Hepatocytes", "Others")) %>%
+  ggplot(aes(x = category, y = n, fill = category)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0, 10)) +
+  labs(x = "", y = "", title = "") +
+  scale_fill_manual(values = c("Hepatocytes" = "#7aa457", "Others" = "#9e6ebd")) +
+  scale_y_continuous(breaks = seq(0, 10, by = 2)) +
+  theme_classic(base_size = 10) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black")
+  )
+
 
 ### multispecies model
 dat = readRDS(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS/core_region_multispecies.rds"))
@@ -38,30 +58,28 @@ print(paste0("Hepatocytes: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(
 df_x = df[df$celltype != "Hepatocytes",]
 print(paste0("Others: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(df_x$n),1)))
 
-
-############## focusing on "Rodentia" only
-
-node_category = read.table(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS/species_category.txt"))
-colnames(node_category) = c("species", "species_category")
-
-dat = readRDS(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS/core_region_aware.rds"))
-
-df = dat %>% group_by(species, celltype) %>% tally() %>% ungroup() %>%
-  complete(species = mamm_list, celltype = celltype_list, fill = list(n = 0)) %>% 
-  left_join(node_category, by = "species")
-
-df_x = df[df$celltype == "Hepatocytes" & df$species_category == "Rodentia",]
-print(paste0("Hepatocytes: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(df_x$n),1)))
+mus_species = c("Mus_musculus", "Mus_spretus", "Mus_caroli", "Mus_pahari")
+df_x = df[df$celltype == "Hepatocytes" & df$species %in% mus_species,]
+print(paste0("Mus-sepcific: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(df_x$n),1)))
 
 
-dat = readRDS(paste0(work_path, "/14_crested/mouse_fake_track_15/Afp_TSS/core_region_multispecies.rds"))
+p2 = df %>%
+  mutate(category = if_else(celltype == "Hepatocytes", "Hepatocytes", "Others")) %>%
+  ggplot(aes(x = category, y = n, fill = category)) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0, 10)) +
+  labs(x = "", y = "", title = "") +
+  scale_fill_manual(values = c("Hepatocytes" = "#7aa457", "Others" = "#9e6ebd")) +
+  scale_y_continuous(breaks = seq(0, 10, by = 2)) +
+  theme_classic(base_size = 10) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black")
+  )
 
-df = dat %>% group_by(species, celltype) %>% tally() %>% ungroup() %>%
-  complete(species = mamm_list, celltype = celltype_list, fill = list(n = 0)) %>% 
-  left_join(node_category, by = "species")
-
-df_x = df[df$celltype == "Hepatocytes" & df$species_category == "Rodentia",]
-print(paste0("Hepatocytes: mean = ", round(mean(df_x$n),1), ", sd = ", round(sd(df_x$n),1)))
+ggsave("~/share/num_enhancer_Afp_TSS.pdf", p1 + p2, width = 10, height = 5)
 
 
 
@@ -410,7 +428,7 @@ for(mamm in rev(mamm_list)){
 
   p = ggplot(df, aes(x_axis, y_axis, fill= score)) + 
   geom_tile() +
-  scale_fill_viridis(discrete=FALSE) +
+  scale_fill_viridis(limits = c(0, 60), discrete=FALSE) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_discrete(expand = c(0, 0)) +
   theme_void() +
@@ -418,16 +436,20 @@ for(mamm in rev(mamm_list)){
     panel.background = element_rect(fill = "#440154", color = NA))
   ggsave(paste0("~/share/heatmap_", celltype, "_multispecies_raw.png"), p, width = 5, height = 5, dpi = 300)
 
-  p = ggplot(df, aes(x_axis, y_axis, fill= phred_score)) + 
+
+  p = ggplot(df, aes(x_axis, y_axis, fill= score)) + 
   geom_tile() +
-  scale_fill_viridis(discrete=FALSE)
-  ggsave(paste0("~/share/heatmap_", celltype, "_multispecies.pdf"), p, width = 5, height = 5)
+  scale_fill_viridis(limits = c(0, 60), discrete=FALSE) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme_void()
+  ggsave(paste0("~/share/heatmap_", celltype, "_multispecies_raw.pdf"), p, width = 5, height = 5)
 
 df_sub = df[df$x_axis > (-100) & df$x_axis < 20,]
 
   p = ggplot(df_sub, aes(x_axis, y_axis, fill= score)) + 
   geom_tile() +
-  scale_fill_viridis(discrete=FALSE) +
+  scale_fill_viridis(limits = c(0, 60), discrete=FALSE) +
   scale_x_continuous(limits = c(-100, 20), expand = c(0, 0)) +
   scale_y_discrete(expand = c(0, 0)) +
   theme_void() +
@@ -435,6 +457,14 @@ df_sub = df[df$x_axis > (-100) & df$x_axis < 20,]
     panel.background = element_rect(fill = "#440154", color = NA))
   ggsave(paste0("~/share/heatmap_", celltype, "_multispecies_raw_zoom_in.png"), p, width = 5, height = 5, dpi = 300)
 
+
+  p = ggplot(df_sub, aes(x_axis, y_axis, fill= score)) + 
+  geom_tile() +
+  scale_fill_viridis(limits = c(0, 60), discrete=FALSE) +
+  scale_x_continuous(limits = c(-100, 20), expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme_void()
+  ggsave(paste0("~/share/heatmap_", celltype, "_multispecies_raw_zoom_in.pdf"), p, width = 5, height = 5)
 
 
 

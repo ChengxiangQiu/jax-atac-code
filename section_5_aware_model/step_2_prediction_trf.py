@@ -1,183 +1,19 @@
 
-####################################################
-### Step-2: predicting on multiple different mammals
 
-import sys, os
-import anndata as ad
-import crested
-import numpy as np
-import matplotlib
-import gzip
-import keras
-import pysam
+######################################################################
+### Genome-wide prediction with the tandem repeat mitigation heuristic
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
-mamm = "Homo_sapiens"
-model_id = "mouse_fake_track_14"
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
 
-# load a trained model
-model_path = f"{work_path}/{model_id}/window_cluster/finetuned_model/checkpoints/06.keras"
-model = keras.models.load_model(model_path, compile=False)
-
-output_path = os.path.join(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}")
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
-
-fasta = pysam.FastaFile(os.path.join(work_path, "genome", mamm, f"{mamm}.fa"))
-
-window_size = 2114
-step_size = 100
-central_size = 1000
-offset = (window_size - central_size) // 2
-
-all_regions = []
-central_start = []
-
-with gzip.open(os.path.join(work_path, "genome", mamm, "candidate_windows.txt.gz"), 'rt') as f:
-    for line in f:
-        chrom, pos_str = line.rstrip().split('\t')
-        pos = int(pos_str)
-        all_regions.append(f"{chrom}:{pos}-{pos + window_size}")
-        central_start.append((chrom, pos + offset))
-
-batch_size = 100000
-batch_list = [(start, min(start + batch_size, len(all_regions))) for start in range(0, len(all_regions), batch_size)]
-print(f"Number of batches: {len(batch_list)}")
-
-iter = int(sys.argv[1])
-batch_range_left = (iter - 1) * 30 + 1
-batch_range_right = min(iter * 30, len(batch_list))
-
-batch_num = 1
-for batch in batch_list:
-    print(f"Processing batch {batch_num}/{len(batch_list)}: {batch[0]} - {batch[1]}")
-    if batch_num >= batch_range_left and batch_num <= batch_range_right:
-        n_counts = []
-        candidate_sequences = []
-        for region in all_regions[batch[0]:batch[1]]:
-            chrom, coords = region.split(":", 1)
-            start, end = map(int, coords.split("-"))
-            seq = fasta.fetch(chrom, start, end)
-            candidate_sequences.append(seq)
-            n_count = sum(seq.upper().count(b) for b in "AGCT")
-            n_counts.append(n_count)
-        nonzero_counts = np.array(n_counts).reshape(-1, 1)
-        file_name = os.path.join(output_path, f"batch_{batch_num}.nonzero.txt.gz")
-        with gzip.open(file_name, 'wt') as f:
-            np.savetxt(f, nonzero_counts, fmt="%d")
-        predictions = crested.tl.predict(input=candidate_sequences, model=model)
-        file_name = os.path.join(output_path, f"batch_{batch_num}.txt.gz")
-        with gzip.open(file_name, 'wt') as f:
-            np.savetxt(f, predictions, fmt="%.3f")
-        arr = np.array(central_start[batch[0]:batch[1]], dtype=object)
-        file_name = os.path.join(output_path, f"batch_{batch_num}.loc.txt.gz")
-        with gzip.open(file_name, 'wt') as f:
-            np.savetxt(f, arr, fmt='%s\t%d')
-    batch_num += 1
-
-print("Completing analysis!")
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
 
 
+######################################################################################################
+### Step-1: creating new mouse genome by replacing the TRF regions with locally dinu-matched sequences
 
-#############
-### merge ###
-
-import gzip
-import os, sys
-import numpy as np
-import pandas as pd
-
-mamm = "Homo_sapiens"
-model_id = "mouse_fake_track_14"
-
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
-data_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}"
-
-file_number = len([i for i in os.listdir(data_path) if "loc" in i and "batch" in i])
-file_list = [f"batch_{i}.txt.gz" for i in range(1, file_number + 1)]
-file_loc_list = [f"batch_{i}.loc.txt.gz" for i in range(1, file_number + 1)]
-file_nonzero_list = [f"batch_{i}.nonzero.txt.gz" for i in range(1, file_number + 1)]
-
-dat = []
-dat_loc = []
-dat_nonzero = []
-
-for batch in range(file_number):
-    print(f"Reading batch: {batch + 1}/{file_number}")
-    with gzip.open(os.path.join(data_path, file_list[batch]), 'rt') as f:
-        dat.append(np.loadtxt(f))
-    with gzip.open(os.path.join(data_path, file_loc_list[batch]), 'rt') as f:
-        dat_loc.extend(tuple(line.rstrip().split('\t')[:2]) for line in f)
-    with gzip.open(os.path.join(data_path, file_nonzero_list[batch]), 'rt') as f:
-        dat_nonzero.append(np.loadtxt(f).reshape(-1, 1))
-
-dat = np.vstack(dat)
-dat_nonzero = np.vstack(dat_nonzero)
-
-chrom = dat_loc[0][0]
-start_index = 0
-
-with gzip.open(os.path.join(data_path, 'dat.txt.gz'), 'wt') as f, gzip.open(os.path.join(data_path, 'dat_loc.txt.gz'), 'wt') as f_loc:
-    for cnt in range(dat.shape[0]):
-        if dat_loc[cnt][0] != chrom:
-            dat_sub = dat[start_index:cnt, :]
-            dat_loc_sub = dat_loc[start_index:cnt]
-            dat_nonzero_sub = dat_nonzero[start_index:cnt, :]
-            mask = dat_nonzero_sub[:, 0] < 2000
-            dat_sub[mask, :] = 0
-            print(f"{chrom}:{dat_sub.shape[0]}")
-            for i in range(9, dat_sub.shape[0]):
-                window_sum = np.sum(dat_sub[(i-9):(i+1), :], axis=0)/10
-                f.write('\t'.join(f'{x:.3f}' for x in window_sum) + '\n')
-                f_loc.write('\t'.join(dat_loc_sub[i]) + '\n')
-            chrom = dat_loc[cnt][0]
-            start_index = cnt
-    cnt += 1
-    dat_sub = dat[start_index:cnt, :]
-    dat_loc_sub = dat_loc[start_index:cnt]
-    dat_nonzero_sub = dat_nonzero[start_index:cnt, :]
-    mask = dat_nonzero_sub[:, 0] < 2000
-    dat_sub[mask, :] = 0
-    print(f"{chrom}:{dat_sub.shape[0]}")
-    for i in range(9, dat_sub.shape[0]):
-        window_sum = np.sum(dat_sub[(i-9):(i+1), :], axis=0)/10
-        f.write('\t'.join(f'{x:.3f}' for x in window_sum) + '\n')
-        f_loc.write('\t'.join(dat_loc_sub[i]) + '\n')
-
-
-###################
-### save the result
-
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
-library(GenomicRanges)
-
-model_id = "mouse_fake_track_14"
-
-mamm = "Homo_sapiens"
-
-celltype_list = c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
-
-dat = read.table(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "/dat.txt.gz"))
-dat_loc = read.table(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "/dat_loc.txt.gz"))
-
-colnames(dat) = celltype_list
-colnames(dat_loc) = c("chr", "start")
-dat_loc$end = dat_loc$start + 100
-
-saveRDS(dat, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "/dat.txt.rds"))
-saveRDS(dat_loc, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "/dat_loc.txt.rds"))
-
-
-
-
-
-##########################################################
-### Genome-wide prediction using masked mouse/human genome
-
-##############################################################################################
-### creating new mouse genome by replacing the TRF regions with locally dinu-matched sequences
-
+### mm10_SimpleRepeats.bed was downloaded from UCSC table brower (mm10)
 ### bedtools sort -i mm10_SimpleRepeats.bed | bedtools merge -i - > mm10_SimpleRepeats.merged.bed
 
 import pysam
@@ -187,7 +23,7 @@ from collections import Counter
 
 iter = int(sys.argv[1])
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
+work_path = ""
 
 mamm = "Mus_musculus"
 
@@ -276,8 +112,8 @@ with open(f"{work_path}/genome/{mamm}/fasta_trf/{mamm}_trf_{iter}.fa", "w") as o
 
 
 
-############################################################
-### prediction on mouse/human genome using 100 bp resolution
+####################################################################
+### Step-2: prediction on mouse/human genome using 100 bp resolution
 
 import sys, os
 import anndata as ad
@@ -288,14 +124,14 @@ import gzip
 import keras
 import pysam
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
+work_path = ""
 mamm = "Mus_musculus"
-model_id = "mouse_fake_track_14"
+model_id = ""
 
 iter = int(sys.argv[1])
 
 # load a trained model
-model_path = f"{work_path}/mouse_fake_track_14/window_cluster/finetuned_model/checkpoints/06.keras"
+model_path = f"{web_path}/CREsted_model/evolution_aware_model.keras"
 model = keras.models.load_model(model_path, compile=False)
 
 output_path = os.path.join(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/trf_{iter}")
@@ -351,8 +187,9 @@ for batch in batch_list:
 
 print("Completing analysis!")
 
-#############
-### merge ###
+
+######################################
+### Step-3: merging prediction results
 
 import gzip
 import os, sys
@@ -360,9 +197,9 @@ import numpy as np
 import pandas as pd
 
 mamm = "Mus_musculus"
-model_id = "mouse_fake_track_14"
+model_id = "XXX"
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
+work_path = ""
 data_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf"
 
 file_number = len([i for i in os.listdir(f"{data_path}/trf_1") if "loc" in i and "batch" in i])
@@ -424,12 +261,5 @@ with gzip.open(os.path.join(data_path, 'dat.txt.gz'), 'wt') as f, gzip.open(os.p
         window_sum = np.sum(dat_sub[(i-9):(i+1), :], axis=0)/10
         f.write('\t'.join(f'{x:.3f}' for x in window_sum) + '\n')
         f_loc.write('\t'.join(dat_loc_sub[i]) + '\n')
-
-
-
-
-
-
-
 
 

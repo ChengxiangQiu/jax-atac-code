@@ -1,12 +1,19 @@
 
-#### Within these regions, model-trimmed elements constitute only XX% (Tcf20) and XX% (Sox2) of bases, 
-#### yet account for XX% and XX%, respectively, of nucleotides with phyloP > 2.
+#######################################
+### Focusing on Tcf20 and Sox2 regions 
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
+
 
 #########################################################################
-### creating the candidate region for calculating the contribution scores
+### Step-1: creating the candidate region for calculating the contribution scores
 
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
-script_path=/net/shendure/vol10/projects/cxqiu/nobackup/install/
+#### Within these regions, model-trimmed elements constitute only XX% (Tcf20) and XX% (Sox2) of bases, 
+#### yet account for XX% and XX%, respectively, of nucleotides with phyloP > 2.
 
 $script_path/bigWigToBedGraph mm10.60way.phyloP60wayPlacental.bw -chrom=chr15 mm10.60way.phyloP60wayPlacental.chr15.bedgraph
 $script_path/bigWigToBedGraph mm10.60way.phyloP60wayPlacental.bw -chrom=chr3 mm10.60way.phyloP60wayPlacental.chr3.bedgraph
@@ -24,8 +31,8 @@ bedtools intersect -a ../prediction_mammals/prediction_Mus_musculus_trf/window_l
 -wa > ./Tcf20_Sox2/"$region_name"_region.aware_core_region.bed
 
 
-#################################
-### calculate contribution scores
+#########################################
+### Step-2: calculate contribution scores
 
 import anndata as ad
 import crested
@@ -40,17 +47,15 @@ import logomaker
 from pathlib import Path
 from scipy.stats import pearsonr
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
 mamm = "Mus_musculus"
-model_id = "mouse_fake_track_14"
 
-model_path = f"{work_path}/mouse_fake_track_14/window_cluster/finetuned_model/checkpoints/06.keras"
+model_path = f"{web_path}/CREsted_model/evolution_aware_model.keras"
 model = keras.models.load_model(model_path, compile=False)
-adata = ad.read_h5ad(os.path.join(work_path, "mouse_fake_track_14", "data_window_cluster_top3K.h5ad"))
+adata = ad.read_h5ad(os.path.join(work_path, "data_window_cluster_top3K.h5ad"))
 
 genome = crested.Genome(
-    "/net/shendure/vol10/projects/cxqiu/nobackup/genome/atac_data/mm10/mm10.fa",
-    "/net/shendure/vol10/projects/cxqiu/nobackup/genome/atac_data/mm10/chromosome_sizes.txt"
+    "mm10.fa",
+    "chromosome_sizes.txt"
 )
 crested.register_genome(genome)
 
@@ -84,18 +89,18 @@ for region_name in ['Tcf20', 'Sox2']:
     big_df.to_csv(f"{work_path}/mouse_fake_track_14/conservation/Tcf20_Sox2/{region_name}_region.aware_core_region.contribution_score.bed", sep='\t', index=False, header=True)
 
 
-##############################################################################################
-### filtering bases with contribution scores > 0.1 (whatever cell type it has been associated)
+######################################################################################################
+### Step-2: filtering bases with contribution scores > 0.1 (whatever cell type it has been associated)
 
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq"
-source("~/work/scripts/utils.R")
-options(scipen = 999)
+work_path = ""
+web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
+source("help_code/utils.R")
 
 for(i in c('Tcf20', 'Sox2')){
-    dat = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Tcf20_Sox2/", i, "_region.aware_core_region.contribution_score.bed"), header=T)
+    dat = read.table(paste0(work_path, "/Tcf20_Sox2/", i, "_region.aware_core_region.contribution_score.bed"), header=T)
     dat_x = dat %>% group_by(chr, start, end) %>% slice_max(order_by = score, n = 1)
     dat_y = dat_x[dat_x$score > 0.1, c(1:3)]
-    write.table(dat_y, paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Tcf20_Sox2/", i, "_region.aware_core_region.filter.bed"), row.names=F, col.names=F, sep="\t", quote=F)
+    write.table(dat_y, paste0(work_path, "/Tcf20_Sox2/", i, "_region.aware_core_region.filter.bed"), row.names=F, col.names=F, sep="\t", quote=F)
 }
 
 i=Tcf20
@@ -109,10 +114,9 @@ bedtools sort -i "$i"_region.aware_core_region.filter.bed | \
 mv "$i"_region.aware_core_region.filter_x.bed "$i"_region.aware_core_region.filter.bed
 
 
-##############################################################################
-### overlapping with high contribution score regions and excluding CDS regions
+######################################################################################
+### Step-3: overlapping with high contribution score regions and excluding CDS regions
 
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
 i=Tcf20
 
 ### how many base pairs in the whole region, and in the high contribution score regions, after excluding CDS
@@ -139,13 +143,13 @@ bedtools intersect \
     > ./Tcf20_Sox2/"$i"_region.aware_core_region.filter.exclude_CDS.bedgraph
 
 i = "Tcf20"
-a = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Tcf20_Sox2/", i, "_region.exclude_CDS.bed"))
-b = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Tcf20_Sox2/", i, "_region.aware_core_region.filter.exclude_CDS.bed"))
+a = read.table(paste0(work_path, "/Tcf20_Sox2/", i, "_region.exclude_CDS.bed"))
+b = read.table(paste0(work_path, "/Tcf20_Sox2/", i, "_region.aware_core_region.filter.exclude_CDS.bed"))
 print(sum(b$V3 - b$V2)/sum(a$V3 - a$V2))
 ### 3%
 
-c = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Tcf20_Sox2/", i, "_region.exclude_CDS.bedgraph"))
-d = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/Tcf20_Sox2/", i, "_region.aware_core_region.filter.exclude_CDS.bedgraph"))
+c = read.table(paste0(work_path, "/Tcf20_Sox2/", i, "_region.exclude_CDS.bedgraph"))
+d = read.table(paste0(work_path, "/Tcf20_Sox2/", i, "_region.aware_core_region.filter.exclude_CDS.bedgraph"))
 cutoff = 2
 print(sum(d$V3[d$V4 > cutoff] - d$V2[d$V4 > cutoff])/sum(c$V3[c$V4 > cutoff] - c$V2[c$V4 > cutoff]))
 ### 20%
@@ -153,7 +157,6 @@ print(sum(d$V3[d$V4 > cutoff] - d$V2[d$V4 > cutoff])/sum(c$V3[c$V4 > cutoff] - c
 
 
 
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
 i=Sox2
 
 ### how many base pairs in the whole region, and in the high contribution score regions, after excluding CDS
@@ -200,13 +203,10 @@ print(sum(d$V3[d$V4 > cutoff] - d$V2[d$V4 > cutoff])/sum(c$V3[c$V4 > cutoff] - c
 
 
 #####################################
-### A more general statement:
+### Step-4: A more general statement
 ### of the XX Mb of the genome with a PhyloP score of > 2, 
 ### XX Mb are accounted for by being protein-coding, while 
 ### XX Mb may be accounted for by a cell class-specific enhancer function nominated here
-
-cd /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation
-script_path=/net/shendure/vol10/projects/cxqiu/nobackup/install/
 
 $script_path/bigWigToBedGraph mm10.60way.phyloP60wayPlacental.bw -chrom=chr3 mm10.60way.phyloP60wayPlacental.chr3.bedgraph
 
@@ -255,18 +255,6 @@ bedtools subtract \
     -b tmp2 \
     > tmp3
 
-x = read.table('/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation/tmp1')
-y = x[x$V1 == "chr3",]
-sum(y$V3 - y$V2)
-[1] 1615108
-x = read.table('/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation/tmp2')
-y = x[x$V1 == "chr3",]
-sum(y$V3 - y$V2)
-[1] 2808016
-x = read.table('/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_14/conservation/tmp3')
-y = x[x$V1 == "chr3",]
-sum(y$V3 - y$V2)
-[1] 1563035
 
 
 

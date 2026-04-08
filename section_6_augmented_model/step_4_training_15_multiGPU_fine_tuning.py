@@ -1,6 +1,18 @@
 
-###########################################################
-### Fine-tuning the model using top 3K peaks per cell class
+
+##################################################################################
+### Finetuning on the model from initial training (32 species, checkpoint epoch 4)
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
+
+
+
+###################################################################
+### Step-1: Fine-tuning the model using top 3K peaks per cell class
 
 import anndata as ad
 import crested
@@ -19,19 +31,15 @@ for gpu in tf.config.list_physical_devices('GPU'):
 
 from tensorflow import keras
 
-work_path = "/gpfs/projects/shendurelabcre/cxqiu/atac_seq/14_crested"
-model_id = "mouse_fake_track_15"
-
 mamm_num = 32
 
-# Set the genome (this only includes regular chrs)
 genome = crested.Genome(
     f"{work_path}/{model_id}/manu_genome.fa",
     f"{work_path}/{model_id}/manu_genome.chrom.sizes"
 )
 crested.register_genome(
     genome
-)  # Register the genome so that it can be used by the package
+)
 print(genome.fetch("I841531_Acinonyx_jubatus_LLWD01000002.1_233225_235339", 10, 2124))
 
 ##################
@@ -88,8 +96,8 @@ with strategy.scope():
 
 
 
-############################
-### Output the access./pred.
+####################################
+### Step-2: Output the access./pred.
 
 import anndata as ad
 import crested
@@ -101,9 +109,6 @@ import keras
 import pysam
 from pathlib import Path
 from scipy.stats import pearsonr
-
-work_path = "/gpfs/projects/shendurelabcre/cxqiu/atac_seq/14_crested"
-experiment_id = "mouse_fake_track_15"
 
 fasta = pysam.FastaFile(f"{work_path}/mm10.fa")
 
@@ -140,51 +145,5 @@ for model_path in model_list_sorted:
 df_result = pd.DataFrame(result, columns=["model_id", "pearson_r"])
 df_result.to_csv(f"{work_path}/{experiment_id}/mamm_{mamm_num}/model_correlation_results.finetune_top3K.txt", sep="\t", index=False)
 
-
-
-#######################################
-### Output the access./pred. on val set
-
-import anndata as ad
-import crested
-import numpy as np
-import pandas as pd
-import os, sys
-import matplotlib
-import keras
-import pysam
-from pathlib import Path
-from scipy.stats import pearsonr
-
-work_path = "/gpfs/projects/shendurelabcre/cxqiu/atac_seq/14_crested"
-experiment_id = "mouse_fake_track_15"
-
-fasta = pysam.FastaFile(f"{work_path}/{experiment_id}/manu_genome.fa")
-
-for mamm_num in [32]:
-    print(mamm_num)
-    adata = ad.read_h5ad(f"{work_path}/{experiment_id}/mamm_{mamm_num}/data_window_cluster_mouse.mamm_{mamm_num}.h5ad")
-    adata_sub = adata[:, adata.var["split"] == "val"].copy()
-    X_sub = adata_sub.X.toarray() if hasattr(adata_sub.X, "toarray") else adata_sub.X
-    obs_flat = np.log1p(X_sub.T.flatten())
-    var_sub = adata_sub.var.copy()
-    candidate_sequences = []
-    for idx, row in var_sub.iterrows():
-        mid = (int(row["start"]) + int(row["end"]))/2
-        candidate_sequences.append(fasta.fetch(row["chr"], mid - 1057, mid + 1057))
-    model_dir = Path(f"{work_path}/{experiment_id}/mamm_{mamm_num}/window_cluster/finetuned_model/checkpoints/")
-    model_list = list(model_dir.glob("*.keras"))
-    model_list_sorted = sorted(model_list, key=lambda p: int(p.stem))
-    result = []
-    for model_path in model_list_sorted:
-        model = keras.models.load_model(model_path, compile=False)
-        predictions = crested.tl.predict(input=candidate_sequences, model=model)
-        pre_flat = np.log1p(predictions.flatten())
-        r, p_value = pearsonr(obs_flat, pre_flat)
-        model_id = int(model_path.stem)
-        print(f"{model_id} / {round(r, 2)}")
-        result.append((model_id, round(r, 2)))
-    df_result = pd.DataFrame(result, columns=["model_id", "pearson_r"])
-    df_result.to_csv(f"{work_path}/{experiment_id}/mamm_{mamm_num}/model_correlation_results.finetune_val.txt", sep="\t", index=False)
 
 

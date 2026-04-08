@@ -1,8 +1,20 @@
 
+###############################################
+### Genome-wide prediction using STEAM-v1 model
+
+### Support data can be downloaded from:
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
+
+### Please contact Chengxiang (CX) Qiu for any questions!
+### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
 
 
-############################################################
-### prediction on mouse/human genome using 100 bp resolution
+### STEAM-v1 model
+### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/CREsted_model/STEAM_v1_model.keras
+
+
+####################################################################
+### Step-1: prediction on mouse/human genome using 100 bp resolution
 
 import sys, os
 import anndata as ad
@@ -13,16 +25,12 @@ import gzip
 import keras
 import pysam
 
-work_path = "/gpfs/projects/shendurelabcre/cxqiu/atac_seq/14_crested"
-work_path = "/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested"
-model_id = "mouse_fake_track_15"
-
 mamm = "Homo_sapiens"
 
 iter = int(sys.argv[1])
 
 # load a trained model
-model_path = f"{work_path}/{model_id}/mamm_32/window_cluster/finetuned_model_1e5/checkpoints/02.keras"
+model_path = f"{work_path}/{model_id}/STEAM_v1_model.keras"
 model = keras.models.load_model(model_path, compile=False)
 
 output_path = os.path.join(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/trf_{iter}")
@@ -80,16 +88,13 @@ print("Completing analysis!")
 
 
 
-#############
-### merge ###
+###########################
+### Step-2: merging results
 
 import gzip
 import os, sys
 import numpy as np
 import pandas as pd
-
-work_path = "/gpfs/projects/shendurelabcre/cxqiu/atac_seq/14_crested"
-model_id = "mouse_fake_track_15"
 
 mamm = sys.argv[1]
 

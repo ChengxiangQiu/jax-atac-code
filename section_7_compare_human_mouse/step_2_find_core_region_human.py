@@ -1,13 +1,12 @@
 
-################################################################
-### Identify core region for individual merged candidate windows
+############################################################
+### Identifying enhancers predicted by STEAM-v1-model (hg38)
 
 ### Support data can be downloaded from:
 ### https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download/
 
 ### Please contact Chengxiang (CX) Qiu for any questions!
 ### cxqiu@uw.edu or chengxiang.qiu@dartmouth.edu
-
 
 
 #######################################################
@@ -17,9 +16,8 @@ import gzip
 import os, sys
 import numpy as np
 
-work_path = ""
-model_id = ""
-mamm = "Mus_musculus"
+model_id = "mouse_fake_track_15"
+mamm = "Homo_sapiens"
 
 dat = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/dat.txt.gz")
 
@@ -44,30 +42,35 @@ with gzip.open(file_name, 'wt') as f:
 
 
 >>> (in R)
-work_path = ""
-web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
-source("help_code/utils.R")
-model_id = ""
-mamm = "Mus_musculus"
+model_id = "mouse_fake_track_15"
+mamm = "Homo_sapiens"
 celltype_list = c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 dat_phred = read.table(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat.phred_score.txt.gz"))
 colnames(dat_phred) = celltype_list
 saveRDS(dat_phred, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat.phred_score.txt.rds"))
 
 
+dat = read.table(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat.txt.gz"))
+dat_loc = read.table(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat_loc.txt.gz"))
 
-#############################################
-### Step-2: Identify candidate 100 bp windows
+colnames(dat) = celltype_list
+colnames(dat_loc) = c("chr", "start")
+dat_loc$end = dat_loc$start + 100
+
+saveRDS(dat, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat.txt.rds"))
+saveRDS(dat_loc, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat_loc.txt.rds"))
 
 
-work_path = ""
-web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
-source("help_code/utils.R")
+
+#########################################
+### step-2: Identifying candidate windows
+
+source("~/work/scripts/utils.R")
 library(GenomicRanges)
 
-model_id = ""
+model_id = "mouse_fake_track_15"
 
-mamm = "Mus_musculus"
+mamm = "Homo_sapiens"
 
 celltype_list = c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 
@@ -94,42 +97,42 @@ for(i in 1:ncol(dat)){
 }
 saveRDS(window_list, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/window_list_10Mb.rds"))
 
-[1] "Adipocyte_cells: 4.193"
-[1] "Adipocyte_cells_Cyp2e1: 4.603"
-[1] "B_cells: 2.641"
-[1] "Brain_capillary_endothelial_cells: 2.894"
-[1] "CNS_neurons: 5.801"
-[1] "Cardiomyocytes: 3.756"
-[1] "Corticofugal_neurons: 3.973"
-[1] "Endocardial_cells: 3.322"
-[1] "Endothelium: 3.399"
-[1] "Epithelial_cells: 5.047"
-[1] "Erythroid_cells: 3.592"
-[1] "Eye: 2.469"
-[1] "Glia: 5.007"
-[1] "Glomerular_endothelial_cells: 2.567"
-[1] "Gut_epithelial_cells: 3.683"
-[1] "Hepatocytes: 3.762"
-[1] "Intermediate_neuronal_progenitors: 5.08"
-[1] "Kidney: 4.148"
-[1] "Lateral_plate_and_intermediate_mesoderm: 4.352"
-[1] "Liver_sinusoidal_endothelial_cells: 2.856"
-[1] "Lung_and_airway: 3.555"
-[1] "Lymphatic_vessel_endothelial_cells: 3.325"
-[1] "Melanocyte_cells: 3.219"
-[1] "Mesoderm: 4.401"
-[1] "Neural_crest_PNS_neurons: 5.311"
-[1] "Neuroectoderm_and_glia: 3.411"
-[1] "Olfactory_ensheathing_cells: 3.37"
-[1] "Olfactory_neurons: 4.476"
-[1] "Oligodendrocytes: 3.779"
-[1] "Skeletal_muscle_cells: 4.17"
-[1] "T_cells: 3.274"
-[1] "White_blood_cells: 5.619"
+[1] "Adipocyte_cells: 6.736"
+[1] "Adipocyte_cells_Cyp2e1: 6.35"
+[1] "B_cells: 2.928"
+[1] "Brain_capillary_endothelial_cells: 4.208"
+[1] "CNS_neurons: 9.741"
+[1] "Cardiomyocytes: 5.061"
+[1] "Corticofugal_neurons: 6.778"
+[1] "Endocardial_cells: 4.929"
+[1] "Endothelium: 4.89300307156145"
+[1] "Epithelial_cells: 7.838"
+[1] "Erythroid_cells: 8.605"
+[1] "Eye: 5.249"
+[1] "Glia: 6.108"
+[1] "Glomerular_endothelial_cells: 3.687"
+[1] "Gut_epithelial_cells: 5.732"
+[1] "Hepatocytes: 5.937"
+[1] "Intermediate_neuronal_progenitors: 8.841"
+[1] "Kidney: 6.581"
+[1] "Lateral_plate_and_intermediate_mesoderm: 6.174"
+[1] "Liver_sinusoidal_endothelial_cells: 4.19000307156146"
+[1] "Lung_and_airway: 5.587"
+[1] "Lymphatic_vessel_endothelial_cells: 4.251"
+[1] "Melanocyte_cells: 3.627"
+[1] "Mesoderm: 7.075"
+[1] "Neural_crest_PNS_neurons: 9.471"
+[1] "Neuroectoderm_and_glia: 6.514"
+[1] "Olfactory_ensheathing_cells: 4.495"
+[1] "Olfactory_neurons: 8.388"
+[1] "Oligodendrocytes: 5.821"
+[1] "Skeletal_muscle_cells: 6.759"
+[1] "T_cells: 4.905"
+[1] "White_blood_cells: 8.69100307156146"
 
 x = window_list %>% group_by(celltype) %>% slice_min(order_by = phred_score, n = 1, with_ties = F)
-### Q = 24.5
-### q = 0.99645, top 0.355%
+### Q = 25.1
+### q = 0.99691, top 0.309%
 
 dat_all = NULL
 for(i in 1:length(celltype_list)){
@@ -164,6 +167,9 @@ for(i in 1:length(celltype_list)){
 
 write.table(dat_all, paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/window_list_10Mb.merge.bed"), row.names=F, col.names=F, sep="\t", quote=F)
 
+### n = 336,649
+
+### this is after merging 100 bp windows, but before detecting core regions by left-right trimming
 
 
 
@@ -171,10 +177,8 @@ write.table(dat_all, paste0(work_path, "/14_crested/", model_id, "/prediction_ma
 
 
 
-
-
-######################################################
-### Step-3: the first round of identifying core region
+##############################################################################
+### step-3: the first round of identifying core region
 
 import random
 import sys, os
@@ -187,7 +191,6 @@ import anndata as ad
 import crested
 import keras
 
-work_path = "/"
 
 celltype_list = ["Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells"]
 
@@ -201,8 +204,8 @@ print(celltype)
 BASES = np.array(['A','C','G','T'])
 BASE_TO_INT = {b:i for i,b in enumerate(BASES)}
 
-mamm = "Mus_musculus"
-model_id = "mouse_fake_track_14"
+mamm = "Homo_sapiens"
+model_id = "mouse_fake_track_15"
 step_size = 20
 seq_length = 2114
 n_reps = 10
@@ -213,7 +216,7 @@ n_reps = 10
 
 fasta = pysam.FastaFile(f"{work_path}/genome/{mamm}/{mamm}.fa")
 
-model_path = f"{web_path}/CREsted_model/evolution_aware_model.keras"
+model_path = f"{work_path}/{model_id}/mamm_32/window_cluster/finetuned_model_1e5/checkpoints/02.keras"
 model = keras.models.load_model(model_path, compile=False)
 
 ########################################
@@ -287,7 +290,7 @@ while left + right < seq_length:
 ########################################
 
 all_regions = []
-bed_path = f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/{celltype}.bed"
+bed_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/{celltype}.bed"
 
 with open(bed_path) as f:
     for line in f:
@@ -296,7 +299,7 @@ with open(bed_path) as f:
         if loc-1057 > 0 and loc+1057 < chr_size[l[0]]:
             all_regions.append((l[0], int(l[1]), int(l[2])))
 
-with gzip.open(f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region/{celltype}_loc.gz", "wt") as out_loc:
+with gzip.open(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region/{celltype}_loc.gz", "wt") as out_loc:
     for chrom, start, end in all_regions:
         out_loc.write(f"{chrom}\t{start}\t{end}\n")
 
@@ -324,7 +327,7 @@ for batch_idx, (start, end) in enumerate(batches, 1):
                 candidate_sequences.append(lp + middle + rp)
     predictions = crested.tl.predict(input=candidate_sequences, model=model)
     predictions_reshape = np.median(predictions.reshape(-1, 10, predictions.shape[1]), axis=1)
-    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region/{celltype}_batch_{batch_idx}.gz"
+    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region/{celltype}_batch_{batch_idx}.gz"
     with gzip.open(out_path, 'wt') as out:
         np.savetxt(out, predictions_reshape, fmt="%.3f")
 
@@ -334,8 +337,8 @@ for batch_idx, (start, end) in enumerate(batches, 1):
 
 
 
-#######################################################
-### Step-4: the second round of identifying core region
+################################################################################
+### step-4: the second round of identifying core region
 
 import random
 import sys, os
@@ -348,7 +351,6 @@ import anndata as ad
 import crested
 import keras
 
-work_path = ""
 
 celltype_list = ["Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells"]
 
@@ -362,13 +364,13 @@ print(celltype)
 BASES = np.array(['A','C','G','T'])
 BASE_TO_INT = {b:i for i,b in enumerate(BASES)}
 
-mamm = "Mus_musculus"
-model_id = ""
+mamm = "Homo_sapiens"
+model_id = "mouse_fake_track_15"
 step_size = 20
 seq_length = 2114
 n_reps = 10
 
-adata = ad.read_h5ad(f"{work_path}/{model_id}/data_window_cluster_top3K.h5ad")
+adata = ad.read_h5ad(f"{work_path}/{model_id}/data_window_cluster_mouse.h5ad")
 celltype_index = np.where(np.isin(adata.obs.index, celltype))[0]
 
 ########################################
@@ -377,7 +379,7 @@ celltype_index = np.where(np.isin(adata.obs.index, celltype))[0]
 
 fasta = pysam.FastaFile(f"{work_path}/genome/{mamm}/{mamm}.fa")
 
-model_path = f"{web_path}/CREsted_model/evolution_aware_model.keras"
+model_path = f"{work_path}/{model_id}/mamm_32/window_cluster/finetuned_model_1e5/checkpoints/02.keras"
 model = keras.models.load_model(model_path, compile=False)
 
 ########################################
@@ -451,7 +453,7 @@ while left + right < seq_length:
 ########################################
 
 all_regions = []
-with gzip.open(f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region/{celltype}_loc.gz", "rt") as file:
+with gzip.open(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region/{celltype}_loc.gz", "rt") as file:
     for line in file:
         l = line.rstrip().split('\t')
         all_regions.append((l[0], int(l[1]), int(l[2])))
@@ -471,7 +473,7 @@ for batch_idx, (start, end) in enumerate(batches, 1):
         loc = (s + e) // 2
         orig_sequences.append(fasta.fetch(chrom, loc-1057, loc+1057))
     orig_sequences_pred = crested.tl.predict(input=orig_sequences, model=model)[:,celltype_index]
-    result = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region/{celltype}_batch_{batch_idx}.gz")[:,celltype_index]
+    result = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region/{celltype}_batch_{batch_idx}.gz")[:,celltype_index]
     candidate_loc = []
     candidate_sequences = []
     for cnt, (chrom, s, e) in enumerate(all_regions[start:end], 1):
@@ -505,10 +507,10 @@ for batch_idx, (start, end) in enumerate(batches, 1):
                 break
     predictions = crested.tl.predict(input=candidate_sequences, model=model)
     predictions_reshape = np.median(predictions.reshape(-1, n_reps, predictions.shape[1]), axis=1)
-    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region_2/{celltype}_batch_{batch_idx}.gz"
+    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region_2/{celltype}_batch_{batch_idx}.gz"
     with gzip.open(out_path, 'wt') as out:
         np.savetxt(out, predictions_reshape, fmt="%.3f")
-    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region_2/{celltype}_batch_{batch_idx}_loc.gz"
+    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region_2/{celltype}_batch_{batch_idx}_loc.gz"
     with gzip.open(out_path, 'wt') as out:
         np.savetxt(out, candidate_loc, fmt='%s', delimiter='\t')
 
@@ -519,8 +521,9 @@ for batch_idx, (start, end) in enumerate(batches, 1):
 
 
 
-####################################
-### Step-5: identifying core regions
+
+######################################
+### step-5: identifying core regions
 
 import random
 import sys, os
@@ -532,19 +535,17 @@ from collections import Counter
 
 import anndata as ad
 
-work_path = ""
-
 celltype_list = ["Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells"]
 
 celltype = celltype_list[int(sys.argv[1]) - 1]
 print(celltype)
 
-mamm = "Mus_musculus"
-model_id = ""
+mamm = "Homo_sapiens"
+model_id = "mouse_fake_track_15"
 step_size = 20
 seq_length = 2114
 
-adata = ad.read_h5ad(f"{work_path}/{model_id}/data_window_cluster_top3K.h5ad")
+adata = ad.read_h5ad(f"{work_path}/{model_id}/data_window_cluster_mouse.h5ad")
 celltype_index = np.where(np.isin(adata.obs.index, celltype))[0]
 
 replacement_schedule = []
@@ -559,7 +560,7 @@ while left + right < seq_length:
     replacement_schedule.append((left, right))
 
 all_regions = []
-with gzip.open(f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region/{celltype}_loc.gz", "rt") as file:
+with gzip.open(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region/{celltype}_loc.gz", "rt") as file:
     for line in file:
         l = line.rstrip().split('\t')
         all_regions.append((l[0], int(l[1]), int(l[2])))
@@ -580,7 +581,7 @@ for batch_idx, (start, end) in enumerate(batches, 1):
 dat_old = []
 for batch_idx in range(batch_num):
     print(f"{batch_idx+1}/{batch_num}")
-    arr = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region/{celltype}_batch_{batch_idx+1}.gz")[:, celltype_index]
+    arr = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region/{celltype}_batch_{batch_idx+1}.gz")[:, celltype_index]
     dat_old.append(arr)
 
 dat_loc_old = pd.DataFrame(dat_loc_old, columns=["chrom", "start", "end", "left", "right"])
@@ -591,11 +592,11 @@ dat = []
 for batch_idx in range(batch_num):
     print(f"{batch_idx+1}/{batch_num}")
     df = pd.read_csv(
-        f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region_2/{celltype}_batch_{batch_idx+1}_loc.gz",
+        f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region_2/{celltype}_batch_{batch_idx+1}_loc.gz",
         sep="\t",
         header=None)
     dat_loc.append(df)
-    arr = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region_2/{celltype}_batch_{batch_idx+1}.gz")[:, celltype_index]
+    arr = np.loadtxt(f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region_2/{celltype}_batch_{batch_idx+1}.gz")[:, celltype_index]
     dat.append(arr)
 
 dat_loc = pd.concat(dat_loc, ignore_index=True)
@@ -615,7 +616,7 @@ for cnt, (chrom, s, e) in enumerate(all_regions, 1):
                           (dat_loc_old['end'] == e)]
     dat_all = pd.concat([dat.drop(columns=['orig_score']), dat_old], axis=0, ignore_index=True)
     dat_filtered = dat[dat['score'] < dat['orig_score'] * 0.9]
-    if len(dat) == 0 or (cnt == 7364 and celltype == "Cardiomyocytes"): ### manually found a weird result
+    if len(dat) == 0:
         result_err.append(dat_old)
     else:
         if len(dat_filtered) == 0:
@@ -628,37 +629,39 @@ for cnt, (chrom, s, e) in enumerate(all_regions, 1):
         else:
             left = row['left']
             right = row['right']-step_size
-        score = dat_all[(dat_all['left'] == left) & (dat_all['right'] == right)]['score'].iloc[0]
-        result.append((chrom, s, e, left, right, loc-1057+left, loc+1057-right, score))
+        if left == 0 and right == 0:
+            result_err.append(dat_old)
+        else:
+            score = dat_all[(dat_all['left'] == left) & (dat_all['right'] == right)]['score'].iloc[0]
+            result.append((chrom, s, e, left, right, loc-1057+left, loc+1057-right, score))
 
-out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region_3/{celltype}_result.gz"
+out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region_3/{celltype}_result.gz"
 with gzip.open(out_path, 'wt') as out:
     np.savetxt(out, result, fmt='%s', delimiter='\t')
 
-out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_Mus_musculus_trf/core_region_3/{celltype}_result.err.gz"
-with gzip.open(out_path, 'wt') as out:
-    np.savetxt(out, pd.concat(result_err, axis=0, ignore_index=True), fmt='%s', delimiter='\t')
-
-
-
+if len(result_err) != 0:
+    out_path = f"{work_path}/{model_id}/prediction_mammals/prediction_{mamm}_trf/core_region_3/{celltype}_result.err.gz"
+    with gzip.open(out_path, 'wt') as out:
+        np.savetxt(out, pd.concat(result_err, axis=0, ignore_index=True), fmt='%s', delimiter='\t')
 
 
 
 ######################################################
 ### Step-6: merging cell types to create a single file
 
-work_path = ""
-web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
-source("help_code/utils.R")
 
-model_id = ""
+options(scipen = 999)
+
+model_id = "mouse_fake_track_15"
+
+mamm = "Homo_sapiens"
 
 celltype_list=c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 
 dat = list()
 for(celltype in celltype_list){
     print(celltype)
-    dat_i = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/core_region_3/', celltype, '_result.gz'))
+    dat_i = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/core_region_3/', celltype, '_result.gz'))
     colnames(dat_i) = c('chrom', 'start', 'end', 'left', 'right', 'core_start', 'core_end', 'score')
     dat_i = dat_i[,c('chrom', 'core_start', 'core_end', 'score')]
     dat_i$celltype = celltype
@@ -666,31 +669,170 @@ for(celltype in celltype_list){
     dat_i$peak_id = paste0("peak_", 1:nrow(dat_i))
     dat_i$strand = 0
     write.table(dat_i[,c("peak_id", "chrom", "core_start", "core_end", "strand")], 
-        paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/core_region_3/', celltype, '.txt'), row.names=F, col.names=F, sep='\t', quote=F)
+        paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/core_region_3/', celltype, '.txt'), row.names=F, col.names=F, sep='\t', quote=F)
 }
 dat = do.call(rbind, dat)
 rownames(dat) = NULL
 
-write.table(dat, paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/window_list_10Mb.core_region.bed'), row.names=F, col.names=F, sep='\t', quote=F)
-### n = 318,423
-### avg size = 530, median size = 474; sd = 316
+write.table(dat, paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/window_list_10Mb.core_region.bed'), row.names=F, col.names=F, sep='\t', quote=F)
+### n = 336378
+### avg size = 542, median size = 494; sd = 310
 
 cut -f1-3 window_list_10Mb.core_region.bed \
   | bedtools sort -i - \
   | bedtools merge -i - > window_list_10Mb.core_region.merge_across_celltype.bed
-### 65,419,688 bps footprints
-### 65419688/2818974548 = 2.3%
+### 90,044,608 bps footprints
+### 90044608/3257347282 = 2.8%
+
+
+bedtools intersect -a window_list_10Mb.core_region.merge_across_celltype.bed \
+-b window_list_10Mb.core_region.bed \
+-wa -wb > window_list_10Mb.core_region.merge_across_celltype.overlap_back.bed
+
+bedtools intersect -a window_list_10Mb.core_region.merge_across_celltype.bed \
+-b /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/TSS_2500.human_v25.bed \
+-wa | uniq > window_list_10Mb.core_region.merge_across_celltype.overlap_promoter.bed
+
+
+
+x = read.table(paste0(work_path, "/14_crested/mouse_fake_track_15/prediction_mammals/prediction_Homo_sapiens_trf/window_list_10Mb.core_region.merge_across_celltype.overlap_back.bed"))
+y = unique(x[,c(1,2,3,8)]) %>% group_by(V1, V2, V3) %>% tally()
+z = read.table(paste0(work_path, "/14_crested/mouse_fake_track_15/prediction_mammals/prediction_Homo_sapiens_trf/window_list_10Mb.core_region.merge_across_celltype.overlap_promoter.bed"))
+z$category = "overlap_promoter"
+print(nrow(y))
+print(round(100*sum(y$n == 1)/nrow(y)))
+print(round(100*sum(y$n == 2)/nrow(y)))
+print(round(100*sum(y$n > 2)/nrow(y)))
+
+[1] 158047
+[1] 62
+[1] 21
+[1] 17
+
+y_num_human = table(y$n)
+y_num_mouse = readRDS("/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_15/prediction_mammals/prediction_Mus_musculus_trf/mouse_enhancer_species_num.rds")
+
+df = data.frame(num_celltypes = c(1:32, 1:32),
+    num_enhancers = c(as.vector(y_num_mouse), as.vector(y_num_human)),
+    species = c(rep("mouse", 32), rep("human", 32)))
+df$num_celltypes[df$num_celltypes > 10] = 10
+
+df$num_celltypes = factor(df$num_celltypes, levels =1:10)
+df$species = factor(df$species, levels = c("mouse", "human"))
+
+p = ggplot(data=df, aes(x=num_celltypes, y=num_enhancers, fill = species)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  theme_classic(base_size = 10) +
+  scale_fill_manual(values=c("human" = "#658bca", "mouse" = "#d79c36"))
+ggsave("~/share/hist_num_celltypes.pdf", p, width = 5, height = 5)
+
+
+
+y = y %>% left_join(z, by = c("V1", "V2", "V3"))
+y$category[is.na(y$category)] = "no_overlap"
+y_x = y
+colnames(y_x) = c("chr","start","end","num_celltype", "category")
+y_x$num_celltype[y_x$num_celltype > 10] = 10
+y_x = y_x %>% filter(category == "overlap_promoter") %>% group_by(num_celltype) %>% tally() %>%
+left_join(y_x %>% group_by(num_celltype) %>% tally() %>% rename(total_n = n), by = "num_celltype") %>%
+mutate(frac = n/total_n, species = "human")
+
+
+y_x_mouse = readRDS("/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/mouse_fake_track_15/prediction_mammals/prediction_Mus_musculus_trf/mouse_enhancer_overlap_promoter.rds")
+
+y_x = rbind(y_x, y_x_mouse)
+y_x$frac = 100 * y_x$frac
+
+y_x$num_celltype = factor(y_x$num_celltype, levels =1:10)
+y_x$species = factor(y_x$species, levels = c("mouse", "human"))
+
+
+python /net/gs/vol1/home/cxqiu/bin/python_script/generate_background_region.py \
+    --n 10000 \
+    --mean 569.7 \
+    --sd 355.9 \
+    --chrom_sizes /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/genome/Homo_sapiens/Homo_sapiens.chrom.sizes.update \
+    --out /net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/background_region.human.bed
+
+bedtools intersect -a background_region.human.bed -b TSS_2500.human_v25.bed -wa | uniq | wc -l
+### 0.1009
+
+p = ggplot(data=y_x, aes(x=num_celltype, y=frac, fill = species)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  geom_hline(yintercept = 9) +
+  geom_hline(yintercept = 10) +
+  theme_classic(base_size = 10) +
+  scale_fill_manual(values=c("human" = "#658bca", "mouse" = "#d79c36"))
+ggsave("~/share/hist_frac_promoter.pdf", p, width = 5, height = 5)
+
+
+
+
+
+
+celltype_list=c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
+
+x_sub = unique(x[,c(1,2,3,8)])
+
+y_sub = y[y$n <= 6,]
+
+x_sub = x_sub %>% left_join(y_sub, by = c("V1", "V2", "V3")) %>% filter(!is.na(n))
+
+
+df = NULL
+for(celltype_i in celltype_list){
+    print(celltype_i)
+    for(celltype_j in celltype_list){
+        x_i = x_sub %>% filter(V8 %in% c(celltype_i, celltype_j)) %>%
+        group_by(V1, V2, V3) %>% tally()
+        df = rbind(df, data.frame(celltype_i, celltype_j, sum(x_i$n > 1), nrow(x_i)))
+    }
+}
+
+colnames(df) = c("celltype_i", "celltype_j", "overlap_n", "union_n")
+df$jacc = df$overlap_n/df$union_n
+
+mat = df[,c("celltype_i","celltype_j","jacc")] %>% dcast(celltype_i~celltype_j)
+rownames(mat) = mat[,1]
+mat = as.matrix(mat[,-1])
+
+diag(mat) = max(mat)
+
+celltype_list_order = c("Gut_epithelial_cells","Hepatocytes","Kidney","Lung_and_airway","Epithelial_cells","Lateral_plate_and_intermediate_mesoderm","Mesoderm","Skeletal_muscle_cells","Cardiomyocytes","Erythroid_cells","Neuroectoderm_and_glia","Eye","CNS_neurons","Neural_crest_PNS_neurons","Intermediate_neuronal_progenitors","B_cells","T_cells","White_blood_cells","Adipocyte_cells_Cyp2e1","Adipocyte_cells","Glia","Melanocyte_cells","Olfactory_ensheathing_cells","Oligodendrocytes","Olfactory_neurons","Corticofugal_neurons","Endothelium","Glomerular_endothelial_cells","Brain_capillary_endothelial_cells","Liver_sinusoidal_endothelial_cells","Endocardial_cells","Lymphatic_vessel_endothelial_cells")
+
+library(gplots)
+library(RColorBrewer)
+library(viridis)
+Colors=rev(brewer.pal(11,"Spectral"))
+Colors=colorRampPalette(Colors)(120)
+
+bk <- seq(0, 0.66, length.out = 101)
+
+pdf("~/share/human_enhancers_overlap.pdf", 8, 8)
+p = heatmap.2(as.matrix(mat[celltype_list_order, celltype_list_order]), 
+          #col=Colors, 
+          col=viridis(100), 
+          breaks = bk,
+          scale="none", 
+          Rowv = F, 
+          Colv = F, 
+          key=T, 
+          density.info="none", 
+          trace="none", 
+          cexRow = 0.5, 
+          cexCol = 0.5,
+          margins = c(5,5))
+dev.off()
 
 
 
 ##############################################################
 ### Step-7: converting the predicted score to Phred-like value
 
-work_path = ""
-web_path = "https://shendure-web.gs.washington.edu/content/members/cxqiu/public/backup/jax_atac/download"
-source("help_code/utils.R")
 
-mamm = "Mus_musculus"
+model_id = "mouse_fake_track_15"
+
+mamm = "Homo_sapiens"
 
 celltype_list = c("Adipocyte_cells","Adipocyte_cells_Cyp2e1","B_cells","Brain_capillary_endothelial_cells","CNS_neurons","Cardiomyocytes","Corticofugal_neurons","Endocardial_cells","Endothelium","Epithelial_cells","Erythroid_cells","Eye","Glia","Glomerular_endothelial_cells","Gut_epithelial_cells","Hepatocytes","Intermediate_neuronal_progenitors","Kidney","Lateral_plate_and_intermediate_mesoderm","Liver_sinusoidal_endothelial_cells","Lung_and_airway","Lymphatic_vessel_endothelial_cells","Melanocyte_cells","Mesoderm","Neural_crest_PNS_neurons","Neuroectoderm_and_glia","Olfactory_ensheathing_cells","Olfactory_neurons","Oligodendrocytes","Skeletal_muscle_cells","T_cells","White_blood_cells")
 
@@ -700,7 +842,7 @@ celltype = celltype_list[kk]
 
 dat = readRDS(paste0(work_path, "/14_crested/", model_id, "/prediction_mammals/prediction_", mamm, "_trf/dat.txt.rds"))
 
-dat_i = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/core_region_3/', celltype, '_result.gz'))
+dat_i = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/core_region_3/', celltype, '_result.gz'))
 colnames(dat_i) = c('chrom', 'start', 'end', 'left', 'right', 'core_start', 'core_end', 'score')
 dat_i = dat_i[,c('chrom', 'core_start', 'core_end', 'score')]
 
@@ -720,9 +862,7 @@ dat_i$score = NULL
 dat_i$celltype = celltype
 
 options(scipen = 999)
-write.table(dat_i, paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/core_region_3/', celltype, '_result.Phred.txt'), row.names=F ,col.names=F, sep="\t", quote=F)
-
-
+write.table(dat_i, paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/core_region_3/', celltype, '_result.Phred.txt'), row.names=F ,col.names=F, sep="\t", quote=F)
 
 
 ### merge the result
@@ -733,123 +873,51 @@ done
 
 
 
+
 ### combining predicted score and Phred-like score, to create a bed file for downloading
-### Supplementary_File_2_Peaks_Specific_to_32_Clusters.bed.gz
-dat = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/window_list_10Mb.core_region.bed'))
-dat_x = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_Mus_musculus_trf/window_list_10Mb.core_region.phred_score.bed'))
+
+mamm = "Homo_sapiens"
+dat = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/window_list_10Mb.core_region.bed'))
+dat_x = read.table(paste0(work_path, '/14_crested/', model_id, '/prediction_mammals/prediction_', mamm, '_trf/window_list_10Mb.core_region.phred_score.bed'))
 
 dat$V6 = as.vector(dat_x$V4)
 colnames(dat) = c("chr", "start", "end", "orig_pred_score", "cell_class", "phred_like_score")
 dat = dat[,c("chr", "start", "end", "orig_pred_score", "phred_like_score", "cell_class")]
 
 options(scipen = 999)
-write.table(dat, "Supplementary_File_2_Peaks_Specific_to_32_Clusters.bed", row.names=F, col.names=T, sep="\t", quote=F)
+write.table(dat, "/net/shendure/vol10/www/content/members/cxqiu/public/backup/jax_atac/download/Supplementary_File_4_Evolution_Augmented_Model_Predict_On_Human_Genome.bed", row.names=F, col.names=T, sep="\t", quote=F)
 
 
 
-
-
-#####################################################################################
-### Step-8: Could we takes. quick look at something like a histogram of phyloP scores 
-### for these regions vs. coding regions vs. the overall distribution? (or something like that).
-
-
-### CDS (coding) regions
-awk 'BEGIN{OFS="\t"} {print $1, $2, $3, $6}' \
-    /net/gs/vol1/home/cxqiu/work/tome/code/mouse.v12.CDS.txt \
-    > mouse.v12.CDS.bed
-
-sort -k4,4 -k1,1 -k2,2n mouse.v12.CDS.bed | \
-    bedtools groupby -g 4 -c 1,2,3 -o distinct,min,max | \
-    awk 'BEGIN{OFS="\t"} {print $2, $3, $4, $1}' \
-    > mouse.v12.CDS.merged.bed
-### 262,025 exon IDs
-
-rm mouse.v12.CDS.bed
-
-bigWigAverageOverBed \
-    mm10.60way.phyloP60wayPlacental.bw \
-    mouse.v12.CDS.merged.bed \
-    phyloP_scores.mouse_v12_CDS.tab
+######################################
+### Step-8: using HOMER to call motifs
 
 
 
+### identify enriched TF motifs by HOMER
 
-### core region from aware model
-awk 'BEGIN{OFS="\t"} {print $1, $2, $3, "core_region_"NR}' \
-    /prediction_Mus_musculus_trf/window_list_10Mb.core_region.bed \
-    > aware_core_region.bed
-### 318,423 enhancers
-
-bigWigAverageOverBed \
-    mm10.60way.phyloP60wayPlacental.bw \
-    aware_core_region.bed \
-    phyloP_scores.aware_enhancer.tab
-
-
-### background
-x = read.table('candidate_windows.txt.gz')
-x = x[sample(1:nrow(x), 300000),]
-x$V3 = x$V2 + 200
-x$V4 = paste0("window_", 1:nrow(x))
-write.table(x, 'background.bed', row.names=F, col.names=F, sep='\t', quote=F)
-
-bigWigAverageOverBed \
-    mm10.60way.phyloP60wayPlacental.bw \
-    background.bed \
-    phyloP_scores.background.tab
-
-
-dat_coding = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/phyloP_scores.mouse_v12_CDS.tab"))
-dat_enhancer = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/phyloP_scores.aware_enhancer.tab"))
-dat_background = read.table(paste0(work_path, "/14_crested/mouse_fake_track_14/conservation/phyloP_scores.background.tab"))
-
-### UCSC 60 species
-> summary(dat_coding$V6)
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
--3.6600  0.8607  1.3911  1.2633  1.7484  3.2230
-> summary(dat_enhancer$V6)
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
--1.5297  0.0000  0.1438  0.2921  0.4881  2.7708
-> summary(dat_background$V6)
-      Min.    1st Qu.     Median       Mean    3rd Qu.       Max.
--1.7310900  0.0000000  0.0001525  0.0779944  0.0961400  2.8792800
-
-df = data.frame(phyloP = c(dat_coding$V6, dat_enhancer$V6, dat_background$V6),
-    category = c(rep('protein_coding', nrow(dat_coding)), rep('enhancer', nrow(dat_enhancer)), rep('background', nrow(dat_background))))
-
-
-p = ggplot() +
-    geom_histogram(data = df[df$category != "background",], aes(x = phyloP, fill = category), color = "grey30", position="identity", alpha=0.7, bins = 100) +
-    geom_histogram(data = df[df$category == "background",], aes(x = phyloP, fill = category), color = "grey30", position="identity", alpha=0.7, bins = 100) +
-    scale_fill_manual(values = c("protein_coding" = "#cb6751", "enhancer" = "#7aa457", "background" = "#9e6ebd")) +
-    labs(x="phyloP scores", y="counts", title="") +
-    theme_classic(base_size = 10) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(legend.position="none") +
-    theme(axis.text.x = element_text(color="black"), axis.text.y = element_text(color="black")) +
-    coord_cartesian(xlim = c(-3.7, 3.7))
-
-ggsave("phyloP_scores_categories_UCSC_60species.pdf", p, height = 4, width = 6)
+celltype_list=(Adipocyte_cells Adipocyte_cells_Cyp2e1 B_cells Brain_capillary_endothelial_cells CNS_neurons Cardiomyocytes Corticofugal_neurons Endocardial_cells Endothelium Epithelial_cells Erythroid_cells Eye Glia Glomerular_endothelial_cells Gut_epithelial_cells Hepatocytes Intermediate_neuronal_progenitors Kidney Lateral_plate_and_intermediate_mesoderm Liver_sinusoidal_endothelial_cells Lung_and_airway Lymphatic_vessel_endothelial_cells Melanocyte_cells Mesoderm Neural_crest_PNS_neurons Neuroectoderm_and_glia Olfactory_ensheathing_cells Olfactory_neurons Oligodendrocytes Skeletal_muscle_cells T_cells White_blood_cells)
+celltype="${celltype_list[$SGE_TASK_ID - 1]}"
+echo $celltype
+model_id=mouse_fake_track_15
+work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/"$model_id"/prediction_mammals/prediction_Homo_sapiens_trf/core_region_3
+/net/shendure/vol10/projects/cxqiu/nobackup/install/HOMER/bin/findMotifsGenome.pl \
+"$work_path"/$celltype.txt \
+hg38 \
+"$work_path"/"$celltype"_denovo \
+-noknown -cpg
 
 
 
-p = ggplot(df, aes(x = phyloP, fill = category)) +
-    geom_density(alpha = 0.5) +
-    scale_fill_manual(values = c("protein_coding" = "#cb6751", "enhancer" = "#7aa457", "background" = "#9e6ebd")) +
-    labs(x="phyloP scores", y="Density", title="") +
-    theme_classic(base_size = 10) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(legend.position="none") +
-    theme(axis.text.x = element_text(color="black"), axis.text.y = element_text(color="black")) +
-    coord_cartesian(xlim = c(-3, 3)) +
-    facet_wrap(~category, scales = "free_y", ncol = 1)
+### mv results to the web server
 
-ggsave("phyloP_scores_categories_UCSC_60species.density.pdf", p, height = 5, width = 5)
-
-
-
-
+celltype_list=(Adipocyte_cells Adipocyte_cells_Cyp2e1 B_cells Brain_capillary_endothelial_cells CNS_neurons Cardiomyocytes Corticofugal_neurons Endocardial_cells Endothelium Epithelial_cells Erythroid_cells Eye Glia Glomerular_endothelial_cells Gut_epithelial_cells Hepatocytes Intermediate_neuronal_progenitors Kidney Lateral_plate_and_intermediate_mesoderm Liver_sinusoidal_endothelial_cells Lung_and_airway Lymphatic_vessel_endothelial_cells Melanocyte_cells Mesoderm Neural_crest_PNS_neurons Neuroectoderm_and_glia Olfactory_ensheathing_cells Olfactory_neurons Oligodendrocytes Skeletal_muscle_cells T_cells White_blood_cells)
+model_id=mouse_fake_track_15
+work_path=/net/shendure/vol2/projects/cxqiu/work/jax/atac_seq/novaseq/14_crested/"$model_id"/prediction_mammals/prediction_Homo_sapiens_trf/core_region_3
+web_path=/net/shendure/vol10/www/content/members/cxqiu/public/nobackup/HOMER_motif/human_enhancers
+for celltype in "${celltype_list[@]}"; do
+cp $work_path/"$celltype"_denovo/homerResults.html $web_path/$celltype.html
+done
 
 
 

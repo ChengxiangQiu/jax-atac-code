@@ -43,9 +43,12 @@ bedtools intersect \
 -v > "$data_path"/BigWig_cut_site_norm/celltype_"$SGE_TASK_ID".no_promoter.bedgraph
 
 python \
-normalize_bedgraph_by_CPM.py \
+./help_code/normalize_bedgraph_by_CPM.py \
 "$data_path"/BigWig_cut_site_norm/celltype_"$SGE_TASK_ID".no_promoter.bedgraph \
 "$data_path"/BigWig_cut_site_norm/celltype_"$SGE_TASK_ID".no_promoter.norm_CPM.bedgraph
+
+### bedGraphToBigWig is UCSC tools:
+### https://hgdownload.gi.ucsc.edu/admin/exe/linux.x86_64/bedGraphToBigWig
 
 bedGraphToBigWig \
 "$data_path"/BigWig_cut_site_norm/celltype_"$SGE_TASK_ID".no_promoter.norm_CPM.bedgraph \
