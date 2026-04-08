@@ -1,0 +1,10 @@
+.DS_Store
+
+# MyST build outputs
+_build
+.claude
+
+# Ignore built artifacts
+*.pdf
+*.html
+reproducing_figures/*.png
