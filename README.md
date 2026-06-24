@@ -120,7 +120,7 @@ remotes::install_github("bnprks/BPCells/r")      # 0.1.0
 
 ### Typical install time on a "normal" desktop computer
 
-Approximately **15–30 minutes** on a standard desktop with a good internet connection, dominated by compiling deep-learning dependencies (TensorFlow / PyTorch).
+Approximately **30–60 minutes** on a standard desktop with a good internet connection, dominated by compiling deep-learning dependencies (TensorFlow / PyTorch).
 
 ---
 
@@ -180,7 +180,7 @@ To reproduce the figures and quantitative results from the manuscript:
 
 ## Data
 
-Large processed data files (peak-by-cell matrices, model checkpoints, ATAC/RNA-seq signal tracks, cactus alignments) are hosted at **GEO: GSE325776**. Individual scripts document which files they consume.
+Large processed data files (peak-by-cell matrices, model checkpoints, genome-wide predictions) are hosted at **GEO: GSE325776** and https://chengxiangqiu.github.io/jax-atac-website/. Individual scripts document which files they consume.
 
 ## License
 
