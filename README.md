@@ -133,6 +133,7 @@ A small demo dataset and walkthrough are provided in `demo/`.
 ```bash
 # Example: performing dimension reduction on a subset of the kidney trajectory
 Rscript demo/Demo_1_dimension_reduction.R
+
 # Example: model prediction using STEAM-v1
 python demo/Demo_2_model_prediction.py
 ```
