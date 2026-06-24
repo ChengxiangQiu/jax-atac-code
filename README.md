@@ -19,6 +19,7 @@ In this study, we profiled whole-embryo chromatin accessibility across 4 million
 ```
 jax-atac-code/
 ├── bin/                              # Computational article creation
+├── demo/                             # Two demo scripts: one for dimension reduction, one for model prediction.
 ├── help_code/                        # Utility scripts shared across the analysis pipeline
 ├── reproducing_figures/              # Scripts to reproduce each main figure
 ├── section_1_data_processing/        # Per-sample QC, doublet removal, peak calling
@@ -125,23 +126,28 @@ Approximately **15–30 minutes** on a standard desktop with a good internet con
 
 ## 3. Demo
 
-A small demo dataset and walkthrough are provided in `reproducing_figures/`.
+A small demo dataset and walkthrough are provided in `demo/`.
 
 ### Instructions to run on data
 
 ```bash
-# Example: regenerate a specific figure panel
-Rscript reproducing_figures/Figure_1.R
+# Example: performing dimension reduction on a subset of the kidney trajectory
+Rscript demo/Demo_1_dimension_reduction.R
+# Example: model prediction using STEAM-v1
+python demo/Demo_2_model_prediction.py
 ```
 
 ### Expected output
 
-- Plots and summary tables written to `demo/demo_output/`
-- *(List the specific files the demo produces)*
+**Demo 1 (dimension reduction):**
+- `pca_coor.csv`, `umap_coor.csv`, `clustering_result.csv`
+
+**Demo 2 (model prediction):**
+- `demo_predictions.csv`
 
 ### Expected run time for demo on a "normal" desktop computer
 
-Approximately **5–15 minutes** on a 16 GB laptop, CPU-only. GPU-dependent steps in the full pipeline are not exercised by the demo.
+Approximately 5–15 minutes on a 16 GB laptop. Demo 1 is CPU-only. Demo 2 (model prediction) runs on CPU but is ~5–10× faster on a GPU.
 
 ---
 
@@ -157,6 +163,7 @@ The analyses in this study were carried out in the following order. To apply the
 4. **Sections 3–6 (`section_3_naive_model/` → `section_6_augmented_model/`)** — Progressive training of STEAM-v1 model variants (Evolution-naive → Evolution-aware → STEAM-v1).
 5. **Section 7 (`section_7_compare_human_mouse/`)** — Cross-species comparison of inferred enhancer landscapes.
 6. **Figure reproduction (`reproducing_figures/`)** — Regenerate manuscript figure panels.
+7. **Demo (`demo/`)** — Two demo scripts: one for dimension reduction, one for model prediction.
 
 Each script's header documents its expected inputs and outputs. See the **Methods** section of the manuscript for full parameter justifications and biological rationale.
 
@@ -164,7 +171,7 @@ Each script's header documents its expected inputs and outputs. See the **Method
 
 To reproduce the figures and quantitative results from the manuscript:
 
-1. Download the processed data from *GEO: GSE325776*.
+1. Download the processed data from **GEO: GSE325776**.
 2. Update file paths to point to your local copy.
 3. Run the scripts in `reproducing_figures/` in numerical order.
 
@@ -172,7 +179,7 @@ To reproduce the figures and quantitative results from the manuscript:
 
 ## Data
 
-Large processed data files (peak-by-cell matrices, model checkpoints, ATAC/RNA-seq signal tracks, cactus alignments) are hosted at *GEO: GSE325776*. Individual scripts document which files they consume.
+Large processed data files (peak-by-cell matrices, model checkpoints, ATAC/RNA-seq signal tracks, cactus alignments) are hosted at **GEO: GSE325776**. Individual scripts document which files they consume.
 
 ## License
 
@@ -182,7 +189,7 @@ Released under the Creative Commons Attribution 4.0 International (CC BY 4.0) li
 
 If you use this code, please cite:
 
-> Qiu, Daza, Welsh, et al. *Evolutionary transfer learning enables organism-wide inference of mammalian enhancer landscapes.* bioRxiv (2026). [link](https://www.biorxiv.org/content/10.64898/2026.04.07.717039v2.abstract)
+> Qiu, Daza, Welsh, et al. Evolutionary transfer learning enables organism-wide inference of mammalian enhancer landscapes. *bioRxiv* (2026). [link](https://www.biorxiv.org/content/10.64898/2026.04.07.717039v2.abstract)
 
 ## Contact
 
